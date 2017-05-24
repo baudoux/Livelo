@@ -108,29 +108,15 @@ public class collect_data extends AppCompatActivity {
 
     public void openNFCSettings(View view) {
 
-        File file = new File(getFilesDir(), "test2");
 
-
-        String filename = "test_kuzhkzhhdj";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
-
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write("helloooo");
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
         // refresh();
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-//            startActivity(intent);
-//        } else {
-//            Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-//            startActivity(intent);
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+            startActivity(intent);
+       }
     }
 
 
