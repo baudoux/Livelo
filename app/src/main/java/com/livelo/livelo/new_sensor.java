@@ -108,19 +108,11 @@ public class new_sensor extends AppCompatActivity {
     }
 
     public void onNewIntent(Intent intent) {
-
-        //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NfcV nfcv = NfcV.get(detectedTag);
         try {
             nfcv.connect();
             if (nfcv.isConnected()) {
-                //myText.append("Connected to the tag");
-                //myText.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
-                    /*buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 0});
-                    myText.append("\nByte block 10:"+buffer);
-                    myText.append("\nByte block 10 as string:"+new String(buffer));*/
-
 
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
 
@@ -131,10 +123,8 @@ public class new_sensor extends AppCompatActivity {
                 editId.setText(id_string.toString());
                 nfcv.close();
             }
-
         } catch (IOException e) {
         }
-        //}
     }
 
 
@@ -163,11 +153,8 @@ public class new_sensor extends AppCompatActivity {
             return;
         }
 
-        // attendre l'intent du nfc
-        // lire l'ID su capteur par NFC
-        int id = 123456789;
-        // écrire les paramètres dans le capteur et le démarer
 
+        // TODO transmettre la sampling period au capteur
 
 
         Calendar now = Calendar.getInstance();
