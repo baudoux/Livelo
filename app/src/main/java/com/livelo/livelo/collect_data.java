@@ -108,29 +108,15 @@ public class collect_data extends AppCompatActivity {
 
     public void openNFCSettings(View view) {
 
-        File file = new File(getFilesDir(), "test2");
 
-
-        String filename = "test_kuzhkzhhdj";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
-
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write("helloooo");
-            outputStreamWriter.close();
+        refresh();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+            startActivity(intent);
         }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-        // refresh();
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-//            startActivity(intent);
-//        } else {
-//            Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-//            startActivity(intent);
-//        }
     }
 
 
@@ -171,13 +157,14 @@ public class collect_data extends AppCompatActivity {
                     myText.append("\nByte block 10:"+buffer);
                     myText.append("\nByte block 10 as string:"+new String(buffer));*/
 
-
+                // get device id
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
 
                 StringBuilder id_string = new StringBuilder();
                 for (byte b : id) {
                     id_string.append(String.format("%02X", b));
                 }
+
                 // TODO find sensor by id
 
                 String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
@@ -204,6 +191,10 @@ public class collect_data extends AppCompatActivity {
                         + "\nid : " + id_string.toString());
 
                 // TODO collect data and display progress bar
+
+                // commencet le refresh pour la progressbar
+                refresh();
+
                 String filename = id_string.toString() + "test" ;
                 String string = "Hello world!";
                 FileOutputStream outputStream;
@@ -256,7 +247,6 @@ public class collect_data extends AppCompatActivity {
                     //nfcv.transceive(new byte[] {0x00, 0x21, (byte) 0,0x01, 0x00, 0x10, 0x03, 0x02, 0x01, 0x01, 0x00});
 
                     buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 9});
-                    refresh();
 
                     StringBuilder sb = new StringBuilder();
                     for (byte b : buffer) {
@@ -264,6 +254,7 @@ public class collect_data extends AppCompatActivity {
                     }
 
                     // TODO collect data here
+                    refresh();
 
                     nfcv.close();
                 } else
