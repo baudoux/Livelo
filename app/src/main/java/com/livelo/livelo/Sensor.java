@@ -5,7 +5,8 @@ package com.livelo.livelo;
  */
 public class Sensor {
     public static String first_name = "", last_name = "", company = "", type = "", location = "";
-    public static int sampling_period = 0, id = 0;
+    public static int sampling_period = 0;
+    public static byte id[];
     public static boolean open_source = true;
     public static long start_time = 0;
     public static long last_collect_time = 0;

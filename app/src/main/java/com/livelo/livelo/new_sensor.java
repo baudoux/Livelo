@@ -2,16 +2,28 @@ package com.livelo.livelo;
 
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.NdefFormatable;
+import android.nfc.tech.NfcV;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.Calendar;
+
+import static java.util.Arrays.copyOf;
 
 public class new_sensor extends AppCompatActivity {
 
@@ -20,6 +32,22 @@ public class new_sensor extends AppCompatActivity {
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     // private com.google.android.gms.common.api.GoogleApiClient client;
+    private NfcAdapter myNfcAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mFilters;
+    private String[][] mTechLists;
+    byte[] id = {};
+
+    EditText editName;
+    EditText editLastName;
+    EditText editCompany;
+    EditText editLocation;
+    EditText editType;
+    EditText editPeriod;
+    TextView editId;
+    CheckBox checkBoxOpenSource;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,30 +57,96 @@ public class new_sensor extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         // client = new com.google.android.gms.common.api.GoogleApiClient.Builder(this).addApi(com.google.android.gms.appindexing.AppIndex.API).build();
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (!myNfcAdapter.isEnabled()) {
+            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+        /*if (myNfcAdapter == null)
+            myText.setText("NFC is not available for the device!!!");
+        else
+            myText.setText("NFC is available for the device");*/
+        editName = (EditText) findViewById(R.id.editName);
+        editLastName = (EditText) findViewById(R.id.editLastName);
+        editCompany = (EditText) findViewById(R.id.editCompany);
+        editLocation = (EditText) findViewById(R.id.editLocation);
+        editType = (EditText) findViewById(R.id.editType);
+        editPeriod = (EditText) findViewById(R.id.editPeriod);
+        editId = (TextView) findViewById(R.id.editId);
+        checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
+
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter nfcv = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        mFilters = new IntentFilter[]{
+                nfcv,
+        };
+        mTechLists = new String[][]{new String[]{NfcV.class.getName()},
+                new String[]{NdefFormatable.class.getName()}};
+
+
+    }
+
+    public void get_id(View view) {
+        if (!myNfcAdapter.isEnabled()) {
+            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
+            toast.show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                startActivity(intent);
+            }
+        } else{
+            Toast toast = Toast.makeText(getApplicationContext(), "scan the sensor", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+    }
+
+    public void onNewIntent(Intent intent) {
+
+        //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
+        Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        NfcV nfcv = NfcV.get(detectedTag);
+        try {
+            nfcv.connect();
+            if (nfcv.isConnected()) {
+                //myText.append("Connected to the tag");
+                //myText.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
+                    /*buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 0});
+                    myText.append("\nByte block 10:"+buffer);
+                    myText.append("\nByte block 10 as string:"+new String(buffer));*/
+
+
+                id = nfcv.transceive(new byte[]{0x00, 0x2B});
+
+                StringBuilder id_string = new StringBuilder();
+                for (byte b : id) {
+                    id_string.append(String.format("%02X", b));
+                }
+                editId.setText(id_string.toString());
+                nfcv.close();
+            }
+
+        } catch (IOException e) {
+        }
+        //}
     }
 
 
     public void goto_add_new_sensor(View view) {
 
-        // create sensor structure and load infos in it
-/*
-        new_sensor.name = editName.getText().toString();
-        new_sensor.last_name = editLastName.getText().toString();
-        new_sensor.company = editCompany.getText().toString();
-        new_sensor.location = editLocation.getText().toString();
-        new_sensor.type = editType.getText().toString();
-        new_sensor.open = checkBoxOpenSource.isChecked();
-        */
+        if(id.length == 0){
+            Toast toast = Toast.makeText(getApplicationContext(), "Get sensor's id before", Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
 
-        EditText editName = (EditText) findViewById(R.id.editName);
-        EditText editLastName = (EditText) findViewById(R.id.editLastName);
-        EditText editCompany = (EditText) findViewById(R.id.editCompany);
-        EditText editLocation = (EditText) findViewById(R.id.editLocation);
-        EditText editType = (EditText) findViewById(R.id.editType);
-        EditText editPeriod = (EditText) findViewById(R.id.editPeriod);
-        CheckBox checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
-
-
+        Sensor.id = copyOf(id, id.length);
         Sensor.first_name = editName.getText().toString();
         Sensor.last_name = editLastName.getText().toString();
         Sensor.company = editCompany.getText().toString();
@@ -74,7 +168,6 @@ public class new_sensor extends AppCompatActivity {
         int id = 123456789;
         // écrire les paramètres dans le capteur et le démarer
 
-        Sensor.id = id;
 
 
         Calendar now = Calendar.getInstance();
@@ -87,18 +180,19 @@ public class new_sensor extends AppCompatActivity {
         Intent intent = new Intent(this, sensors.class);
         startActivity(intent);
     }
-/*
-    public void get_location(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        // TODO activate the gps, or request to activate it
-        // TODO get the location
-        // TODO set lat and lng in the text view
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new MyLocationListener();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-    }
-*/
+
+    /*
+        public void get_location(View view) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            // TODO activate the gps, or request to activate it
+            // TODO get the location
+            // TODO set lat and lng in the text view
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            LocationListener locationListener = new MyLocationListener();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+        }
+    */
     private boolean check_inputs() {
         // TODO complete
         return false;
@@ -108,71 +202,17 @@ public class new_sensor extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-/*
-    @Override
-    public void onStart() {
-        super.onStart();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        com.google.android.gms.appindexing.Action viewAction = com.google.android.gms.appindexing.Action.newAction(
-                com.google.android.gms.appindexing.Action.TYPE_VIEW, // TODO: choose an action type.
-                "new_sensor Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.livelo.livelo/http/host/path")
-        );
-        com.google.android.gms.appindexing.AppIndex.AppIndexApi.start(client, viewAction);
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
+                mTechLists);
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        com.google.android.gms.appindexing.Action viewAction = com.google.android.gms.appindexing.Action.newAction(
-                com.google.android.gms.appindexing.Action.TYPE_VIEW, // TODO: choose an action type.
-                "new_sensor Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.livelo.livelo/http/host/path")
-        );
-        com.google.android.gms.appindexing.AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
+    public void onPause() {
+        super.onPause();
+        myNfcAdapter.disableForegroundDispatch(this);
     }
-*/
-    /*private class MyLocationListener implements LocationListener {
-
-        @Override
-        public void onLocationChanged(Location loc) {
-
-        //------- To get city name from coordinates --------
-            String cityName = null;
-            Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
-            List<Address> addresses;
-            try {
-                addresses = gcd.getFromLocation(loc.getLatitude(),
-                        loc.getLongitude(), 1);
-                if (addresses.size() > 0) {
-                    System.out.println(addresses.get(0).getLocality());
-                    cityName = addresses.get(0).getLocality();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(
-                        getBaseContext(),
-                        "Location changed: Lat: " + loc.getLatitude() + " Lng: "
-                                + loc.getLongitude()+"   "+ cityName, Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }*/
 }

@@ -100,15 +100,37 @@
         android:layout_toStartOf="@+id/_button"
         android:textColor="#000000" />
 
-    <EditText
+    <TextView
+        android:id="@+id/editId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:ems="10"
+        android:hint="id"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:layout_below="@+id/editPeriod"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
         android:id="@+id/editPeriod"
-        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/editType"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
         android:hint="Sampling period"
+        android:inputType="number"
         android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/button_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="get_id"
+        android:text="help"
+        android:textColor="#000000"
+        android:layout_below="@+id/editPeriod"
+        android:layout_toRightOf="@+id/editPeriod"
+        android:layout_toEndOf="@+id/editPeriod" />
 
 </RelativeLayout>
