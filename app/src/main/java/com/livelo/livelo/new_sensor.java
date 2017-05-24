@@ -44,7 +44,7 @@ public class new_sensor extends AppCompatActivity {
     EditText editLocation;
     EditText editType;
     EditText editPeriod;
-    TextView editId;
+    //TextView editId;
     CheckBox checkBoxOpenSource;
 
 
@@ -64,17 +64,13 @@ public class new_sensor extends AppCompatActivity {
             toast.show();
         }
 
-        /*if (myNfcAdapter == null)
-            myText.setText("NFC is not available for the device!!!");
-        else
-            myText.setText("NFC is available for the device");*/
         editName = (EditText) findViewById(R.id.editName);
         editLastName = (EditText) findViewById(R.id.editLastName);
         editCompany = (EditText) findViewById(R.id.editCompany);
         editLocation = (EditText) findViewById(R.id.editLocation);
         editType = (EditText) findViewById(R.id.editType);
         editPeriod = (EditText) findViewById(R.id.editPeriod);
-        editId = (TextView) findViewById(R.id.editId);
+        //editId = (TextView) findViewById(R.id.editId);
         checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
@@ -88,7 +84,7 @@ public class new_sensor extends AppCompatActivity {
 
 
     }
-
+    /*
     public void get_id(View view) {
         if (!myNfcAdapter.isEnabled()) {
             Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
@@ -106,7 +102,7 @@ public class new_sensor extends AppCompatActivity {
         }
 
     }
-
+*/
     public void onNewIntent(Intent intent) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NfcV nfcv = NfcV.get(detectedTag);
@@ -116,20 +112,17 @@ public class new_sensor extends AppCompatActivity {
 
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
 
-                StringBuilder id_string = new StringBuilder();
-                for (byte b : id) {
-                    id_string.append(String.format("%02X", b));
-                }
-                editId.setText(id_string.toString());
+                //StringBuilder id_string = new StringBuilder();
+                //for (byte b : id) {
+                //    id_string.append(String.format("%02X", b));
+                //}
+                //editId.setText(id_string.toString());
                 nfcv.close();
             }
         } catch (IOException e) {
         }
-    }
 
-
-    public void goto_add_new_sensor(View view) {
-
+        //FIXME sûrement inutile
         if(id.length == 0){
             Toast toast = Toast.makeText(getApplicationContext(), "Get sensor's id before", Toast.LENGTH_SHORT);
             toast.show();
@@ -164,8 +157,20 @@ public class new_sensor extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), "new sensor created", Toast.LENGTH_SHORT);
         toast.show();
 
-        Intent intent = new Intent(this, sensors.class);
-        startActivity(intent);
+        Intent intent2 = new Intent(this, sensors.class);
+        startActivity(intent2);
+
+
+    }
+
+
+    public void goto_add_new_sensor(View view) {
+        // TODO si possible commencer le filtre des intents ici
+        //////////////////////////////////////////////////////////////////////////////////////////// essai
+        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
+                mTechLists);
+        ////////////// pas sur que ça marche.............. sinon le remettre dans le onresume
+
     }
 
     /*
@@ -193,8 +198,7 @@ public class new_sensor extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
-                mTechLists);
+
     }
 
     @Override

@@ -107,9 +107,6 @@ public class collect_data extends AppCompatActivity {
     }*/
 
     public void openNFCSettings(View view) {
-
-
-        refresh();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
             startActivity(intent);
@@ -214,59 +211,11 @@ public class collect_data extends AppCompatActivity {
         } catch (IOException e) {
             myText.append("Error");
         }
-        //}
-    }
 
-
-    public void collect(View view) {
-        myText = (TextView) findViewById(R.id.NFCAdapter);
-        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (!myNfcAdapter.isEnabled()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
-        if (myNfcAdapter == null)
-            myText.setText("NFC is not available for the device!!!");
-        else
-            myText.setText("NFC is available for the device");
-
-        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
-            Tag detectedTag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG); NfcV nfcv = NfcV.get(detectedTag);
-            try {
-                nfcv.connect();
-                if(nfcv.isConnected()){
-                    myText.append("Connected to the tag");
-                    myText.append("\nTag DSF: "+Byte.toString(nfcv.getDsfId()));
-                    byte[] buffer;
-                   /*buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 0});
-                   myText.append(“\nByte block 10:“+buffer);
-                   myText.append(“\nByte block 10 as string:“+new String(buffer));*/
-
-
-                    //nfcv.transceive(new byte[] {0x00, 0x21, (byte) 0,0x01, 0x00, 0x10, 0x03, 0x02, 0x01, 0x01, 0x00});
-
-                    buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 9});
-
-                    StringBuilder sb = new StringBuilder();
-                    for (byte b : buffer) {
-                        sb.append(String.format("%02X ", b));
-                    }
-
-                    // TODO collect data here
-                    refresh();
-
-                    nfcv.close();
-                } else
-                    myText.append("Not connected to the tag");
-            } catch (IOException e) { myText.append("Error");
-            }
-        }
-
-        // TODO change last collect time if succeed
         Calendar now = Calendar.getInstance();
         Sensor.last_collect_time = now.getTimeInMillis();
     }
+
 
     @Override
     public void onResume() {
