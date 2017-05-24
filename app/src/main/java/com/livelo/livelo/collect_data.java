@@ -256,12 +256,12 @@ public class collect_data extends AppCompatActivity {
                     //nfcv.transceive(new byte[] {0x00, 0x21, (byte) 0,0x01, 0x00, 0x10, 0x03, 0x02, 0x01, 0x01, 0x00});
 
                     buffer=nfcv.transceive(new byte[] {0x00, 0x20, (byte) 9});
+                    refresh();
 
                     StringBuilder sb = new StringBuilder();
                     for (byte b : buffer) {
                         sb.append(String.format("%02X ", b));
                     }
-                    refresh();
 
                     // TODO collect data here
 
