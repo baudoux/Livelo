@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.livelo.livelo.new_sensor"
+    android:clickable="true"
+    android:onClick="click_on_background">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add sensor"
+        android:id="@+id/button_add_sensor"
+        android:onClick="goto_add_new_sensor"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="86dp"
+        android:textColor="#000000" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open source"
+        android:id="@+id/checkBoxOpenSource"
+        android:checked="true"
+        android:layout_above="@+id/button_add_sensor"
+        android:layout_alignLeft="@+id/button_add_sensor"
+        android:layout_alignStart="@+id/button_add_sensor" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editName"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:hint="Name"
+        android:textColor="#000000" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editLastName"
+        android:layout_below="@+id/editName"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentStart="false"
+        android:hint="Last name"
+        android:textColor="#000000" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editCompany"
+        android:layout_below="@+id/editLastName"
+        android:layout_centerHorizontal="true"
+        android:hint="Company"
+        android:textColor="#000000" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editLocation"
+        android:layout_below="@+id/editCompany"
+        android:layout_centerHorizontal="true"
+        android:hint="Location"
+        android:textColor="#000000" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS"
+        android:id="@+id/_button"
+        android:layout_alignBottom="@+id/editLocation"
+        android:layout_toRightOf="@+id/editLocation"
+        android:layout_toEndOf="@+id/editLocation"
+        android:textColor="#000000"
+        android:onClick="get_location" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editType"
+        android:hint="Type"
+        android:layout_below="@+id/editLocation"
+        android:layout_toLeftOf="@+id/_button"
+        android:layout_toStartOf="@+id/_button"
+        android:textColor="#000000" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editPeriod"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/editType"
+        android:hint="Sampling period"
+        android:textColor="#000000" />
+
+</RelativeLayout>

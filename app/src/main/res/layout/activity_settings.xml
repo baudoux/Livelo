@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.livelo.livelo.settings">
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="allow notifications    "
+        android:id="@+id/switch_notification"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:checked="false"
+        android:onClick="notifications" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="send data automatically    "
+        android:id="@+id/switch_auto"
+        android:layout_below="@+id/switch_notification"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="33dp"
+        android:checked="false"
+        android:onClick="autoUpload" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WiFi only    "
+        android:id="@+id/switch_wifi"
+        android:checked="false"
+        android:layout_marginTop="33dp"
+        android:layout_below="@+id/switch_auto"
+        android:layout_centerHorizontal="true"
+        android:onClick="wifi" />
+</RelativeLayout>
