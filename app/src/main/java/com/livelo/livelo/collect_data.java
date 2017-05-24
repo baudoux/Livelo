@@ -169,10 +169,7 @@ public class collect_data extends AppCompatActivity {
                     for (byte b : buffer) {
                         sb.append(String.format("%02X ", b));
                     }
-                    //System.out.println(sb.toString());
 
-                    myText.append("\nByte block 10:"+sb.toString());
-                    myText.append("\nByte block 10 as string:"+new String(buffer));
                     nfcv.close();
                 } else
                     myText.append("Not connected to the tag");
