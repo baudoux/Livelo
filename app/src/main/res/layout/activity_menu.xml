@@ -69,12 +69,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button_send"
-        android:layout_below="@+id/imageView"
-        android:layout_centerHorizontal="true"
         android:src="@drawable/send_data"
         android:adjustViewBounds="false"
         android:background="#000485"
-        android:onClick="send_data" />
+        android:onClick="send_data"
+        android:layout_below="@+id/imageView"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
