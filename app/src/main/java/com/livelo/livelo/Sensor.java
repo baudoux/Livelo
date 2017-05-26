@@ -10,4 +10,6 @@ public class Sensor {
     public static boolean open_source = true;
     public static long start_time = 0;
     public static long last_collect_time = 0;
+
+    public static String filesNames = "files_names.txt";
 }

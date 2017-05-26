@@ -37,13 +37,12 @@ public class collect_data extends AppCompatActivity {
     private TextView data;
     private TextView tv_progress;
     private ProgressBar progressBar;
+    private Handler progressBarHandler = new Handler();
+    FileOutputStream fileout;
+    OutputStreamWriter outputWriter;
+
     byte[] id;
     private int k = 0;
-
-    int i = 0;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +61,6 @@ public class collect_data extends AppCompatActivity {
             Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
             toast.show();
         }
-
-
         /*if (myNfcAdapter == null)
             myText.setText("NFC is not available for the device!!!");
         else
@@ -79,43 +76,43 @@ public class collect_data extends AppCompatActivity {
                 new String[]{NdefFormatable.class.getName()}};
     }
 
-    public void openNFCSettings(View view) {
-
-        String textmsg = "alsdkfhéalkjshfdlasdf";
-
-        try {
-            FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
-            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-            outputWriter.write(textmsg.toString());
-            outputWriter.close();
-
-            //display file saved message
-            Toast.makeText(getBaseContext(), "File saved successfully!",
-                    Toast.LENGTH_SHORT).show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            FileInputStream fileIn = openFileInput("mytextfile.txt");
-            InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-            char[] inputBuffer= new char[100];
-            String s = "";
-            int charRead;
-
-            while ((charRead=InputRead.read(inputBuffer))>0) {
-                // char to string conversion
-                String readstring=String.copyValueOf(inputBuffer,0,charRead);
-                s +=readstring;
-            }
-            InputRead.close();
-            Toast.makeText(getBaseContext(), s,Toast.LENGTH_SHORT).show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void openNFCSettings(View view) { // ça me sert de bouton pour les tests aussi. c'est normal si li y a un peu de la merde dedans
+        refresh();
+//        String textmsg = "alsdkfhéalkjshfdlasdf";
+//
+//        try {
+//            FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
+//            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+//            outputWriter.write(textmsg.toString());
+//            outputWriter.close();
+//
+//            //display file saved message
+//            Toast.makeText(getBaseContext(), "File saved successfully!",
+//                    Toast.LENGTH_SHORT).show();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            FileInputStream fileIn = openFileInput("mytextfile.txt");
+//            InputStreamReader InputRead = new InputStreamReader(fileIn);
+//
+//            char[] inputBuffer= new char[100];
+//            String s = "";
+//            int charRead;
+//
+//            while ((charRead=InputRead.read(inputBuffer))>0) {
+//                // char to string conversion
+//                String readstring=String.copyValueOf(inputBuffer,0,charRead);
+//                s +=readstring;
+//            }
+//            InputRead.close();
+//            Toast.makeText(getBaseContext(), s,Toast.LENGTH_SHORT).show();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
             startActivity(intent);
@@ -135,9 +132,9 @@ public class collect_data extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        progressBar.setProgress(i);
-                        tv_progress.setText("loading : " + String.valueOf(k/32*100) + "%");
                         if(k<=32) refresh();
+                        progressBar.setProgress(k);
+                        tv_progress.setText("loading : " + String.valueOf((float)k/32*100) + "%");
                     }
                 });
             }
@@ -192,29 +189,24 @@ public class collect_data extends AppCompatActivity {
                 refresh();
                 // get now for file name
                 Calendar now = Calendar.getInstance();
-                //String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now);
-                //String now_string = new SimpleDateFormat("dd-MM-yyyy").format(now);
-                //String now_string = dateFormat(.format(now.getTime()));
-                //
-                //
-                //
-                // now_string + "_" +
+                String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
 
-                String fileName = id_string.toString() + ".txt";
+                String fileName = now_string + "_" +id_string.toString() + ".txt";
 
                 // TODO for ou while
                 byte index[];
                 index = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06});
                 int samplingNb = ((index[4] & 0xff) << 8) | (index[5] & 0xff);
 
-                FileOutputStream fileout=openFileOutput(fileName, MODE_PRIVATE);
-                OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+                fileout=openFileOutput(fileName, MODE_PRIVATE);
+                outputWriter = new OutputStreamWriter(fileout);
 
                 int blockCount = 1;
 
-                data.setText("dslhjaslkdjféalfd");
 
                 for ( k = 0; k < 3; k++) { //32 corresponds to 32*2048
+                    progressBar.setProgress(k);
+                    tv_progress.setText("loading : " + String.valueOf((byte)(k/32.*100 + .5)) + "%");
 
                     /////////////////Start transferring from FRAM to RAM////////////////
                     byte command[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
@@ -299,15 +291,15 @@ public class collect_data extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-//__________________________________________________________________________________________________ fonction de lecture
-//                try {
-//                    FileOutputStream fileout=openFileOutput(fileName, MODE_PRIVATE);
-//                    OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-//                    outputWriter.write("sdéflkéslkdfhég".toString());
-//                    outputWriter.close();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                /////////////////////keep the name of the file in files_names.txt ///////////////////////////
+                try {
+                    fileout = openFileOutput(Sensor.filesNames, MODE_PRIVATE);
+                    outputWriter = new OutputStreamWriter(fileout);
+                    outputWriter.write(fileName + "\n");
+                    outputWriter.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 //__________________________________________________________________________________________________
                 nfcv.close();
 

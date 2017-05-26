@@ -45,6 +45,11 @@ public class menu extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void goto_reset(View view) {
+        Intent intent = new Intent(this, reset.class);
+        startActivity(intent);
+    }
+
     public void send_data(View view) {
         Toast toast = Toast.makeText(getApplicationContext(), "sending data", Toast.LENGTH_SHORT);
         toast.show();

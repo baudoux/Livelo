@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.livelo.livelo" >
+    package="com.livelo.livelo">
 
     <uses-sdk android:minSdkVersion="11" />
 
@@ -10,32 +10,35 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" >
+    <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
         <tech-list>
             <tech>
-android.nfc.tech.NfcV
+                android.nfc.tech.NfcV
             </tech>
         </tech-list>
     </resources>
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".menu"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".sensors"
             android:parentActivityName=".menu"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -45,7 +48,7 @@ android.nfc.tech.NfcV
         <activity
             android:name=".new_sensor"
             android:parentActivityName=".sensors"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -55,7 +58,7 @@ android.nfc.tech.NfcV
         <activity
             android:name=".collect_data"
             android:label="collect_data"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
 
@@ -68,13 +71,11 @@ android.nfc.tech.NfcV
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.livelo.livelo.menu" />
-
         </activity>
-
-    <activity
+        <activity
             android:name=".settings"
             android:parentActivityName=".menu"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.livelo.livelo.menu" />
@@ -82,13 +83,16 @@ android.nfc.tech.NfcV
         <activity
             android:name=".help"
             android:parentActivityName=".menu"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.livelo.livelo.menu" />
         </activity>
-        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <!--
+     ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
+        <activity android:name=".reset"></activity>
     </application>
 
 </manifest>
