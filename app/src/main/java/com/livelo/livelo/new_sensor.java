@@ -18,13 +18,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Calendar;
 
-import static com.livelo.livelo.R.id.progressBar2;
+import static com.livelo.livelo.R.id.progressBarWaitNewSensor;
 import static java.util.Arrays.copyOf;
 
 public class new_sensor extends AppCompatActivity {
@@ -40,15 +41,16 @@ public class new_sensor extends AppCompatActivity {
     private String[][] mTechLists;
     byte[] id = {};
 
-    EditText editName;
-    EditText editLastName;
-    EditText editCompany;
-    EditText editLocation;
-    EditText editType;
-    EditText editPeriod;
-    //TextView editId;
-    CheckBox checkBoxOpenSource;
-    ProgressBar progressBar2;
+    private EditText editName;
+    private EditText editLastName;
+    private EditText editCompany;
+    private EditText editLocation;
+    private EditText editType;
+    private EditText editPeriod;
+    private CheckBox checkBoxOpenSource;
+    private ProgressBar progressBarWaitNewSensor;
+    private ScrollView ScrollNewSensor;
+    private TextView tvWaitNewSensor;
 
 
 
@@ -73,10 +75,10 @@ public class new_sensor extends AppCompatActivity {
             editType = (EditText) findViewById(R.id.editType);
             editPeriod = (EditText) findViewById(R.id.editPeriod);
 
-            //editId = (TextView) findViewById(R.id.editId);
             checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
-            progressBar2 = (ProgressBar) findViewById(R.id.progressBar2);
-            //progressBar3.setVisibility(View.INVISIBLE);
+            progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
+            ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
+            tvWaitNewSensor = (TextView) findViewById(R.id.tvWaitNewSensor);
 
             mPendingIntent = PendingIntent.getActivity(this, 0,
                     new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -86,6 +88,10 @@ public class new_sensor extends AppCompatActivity {
             };
             mTechLists = new String[][]{new String[]{NfcV.class.getName()},
                     new String[]{NdefFormatable.class.getName()}};
+
+            ScrollNewSensor.setVisibility(View.VISIBLE);
+            progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
+            tvWaitNewSensor.setVisibility(View.INVISIBLE);
 
 
     }
@@ -175,7 +181,9 @@ public class new_sensor extends AppCompatActivity {
         if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
                 mTechLists);
         ////////////// pas sur que ça marche.............. sinon le remettre dans le onresume
-        progressBar2.setVisibility(View.VISIBLE);
+        ScrollNewSensor.setVisibility(View.INVISIBLE);
+        progressBarWaitNewSensor.setVisibility(View.VISIBLE);
+        tvWaitNewSensor.setVisibility(View.VISIBLE);
     }
 
     /*
