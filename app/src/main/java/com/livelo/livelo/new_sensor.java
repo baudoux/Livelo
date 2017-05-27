@@ -178,6 +178,10 @@ public class new_sensor extends AppCompatActivity {
     public void goto_add_new_sensor(View view) {
         // TODO si possible commencer le filtre des intents ici
         //////////////////////////////////////////////////////////////////////////////////////////// essai
+
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
         if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
                 mTechLists);
         ////////////// pas sur que ça marche.............. sinon le remettre dans le onresume

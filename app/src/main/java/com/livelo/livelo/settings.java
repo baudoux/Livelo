@@ -77,6 +77,10 @@ public class settings extends AppCompatActivity {
 
     public void onNewIntent(Intent intent) {
         // TODO connexion nfc ici et mettre les paremetres dans le sensor
+
+        // back to the menu activity
+        Intent intent2 = new Intent(this, menu.class);
+        startActivity(intent2);
     }
 
 
