@@ -1,45 +1,42 @@
 package com.livelo.livelo;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
-import android.nfc.tech.Ndef;
-import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcV;
-import android.os.Bundle;
+        import android.app.AlertDialog;
+        import android.app.PendingIntent;
+        import android.content.DialogInterface;
+        import android.content.Intent;
+        import android.content.IntentFilter;
+        import android.nfc.NfcAdapter;
+        import android.nfc.Tag;
+        import android.nfc.tech.Ndef;
+        import android.nfc.tech.NdefFormatable;
+        import android.nfc.tech.NfcV;
+        import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import java.io.IOException;
+        import java.io.IOException;
 
 /**
  * Created by Nico on 12/05/2017.
  */
-
-public class Reset_Activity extends Activity{
+public class reset extends AppCompatActivity {
 
     private NfcAdapter myNfcAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private TextView myText;
+    private TextView tv_reset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset);
+        getSupportActionBar().setTitle("Reset");
 
 
-        myText = (TextView) findViewById(R.id.resetText);
+        tv_reset = (TextView) findViewById(R.id.tv_reset);
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (myNfcAdapter == null)
-            myText.setText("NFC is not available for the device!!!");
-        else
-            myText.setText("NFC is available for the device");
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -60,8 +57,8 @@ public class Reset_Activity extends Activity{
         try {
             nfcv.connect();
             if (nfcv.isConnected()) {
-                myText.append("Connected to the tag");
-                myText.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
+                tv_reset.append("Connected to the tag");
+                tv_reset.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
 
 
                 byte command[] = new byte[]{//Send reset
@@ -84,8 +81,13 @@ public class Reset_Activity extends Activity{
             nfcv.close();
 
         } catch (IOException e) {
-            myText.append("Error");
+            tv_reset.append("Error");
         }
+
+        // go back to the menu activity
+        Intent intent2 = new Intent(this, menu.class);
+        startActivity(intent2);
+
 
     }
 

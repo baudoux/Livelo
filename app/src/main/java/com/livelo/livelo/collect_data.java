@@ -34,9 +34,11 @@ public class collect_data extends AppCompatActivity {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
     private TextView tv;
+    private TextView textView4;
     private TextView data;
     private TextView tv_progress;
     private ProgressBar progressBar;
+    private ProgressBar progressBar4;
     private Handler progressBarHandler = new Handler();
     FileOutputStream fileout;
     OutputStreamWriter outputWriter;
@@ -51,15 +53,16 @@ public class collect_data extends AppCompatActivity {
         setContentView(R.layout.activity_collect_data);
 
         tv = (TextView) findViewById(R.id.tv);
+        textView4 = (TextView) findViewById(R.id.textView4);
         data = (TextView) findViewById(R.id.data);
         tv_progress = (TextView) findViewById(R.id.tv_progress);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar4 = (ProgressBar) findViewById(R.id.progressBar4);
         progressBar.setMax(32);
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         if (!myNfcAdapter.isEnabled()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
-            toast.show();
+            Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
         }
         /*if (myNfcAdapter == null)
             myText.setText("NFC is not available for the device!!!");
@@ -74,6 +77,12 @@ public class collect_data extends AppCompatActivity {
         };
         mTechLists = new String[][]{new String[]{NfcV.class.getName()},
                 new String[]{NdefFormatable.class.getName()}};
+
+        progressBar.setVisibility(View.INVISIBLE);
+        tv_progress.setVisibility(View.INVISIBLE);
+        tv.setVisibility(View.INVISIBLE);
+        textView4.setVisibility(View.VISIBLE);
+        progressBar4.setVisibility(View.VISIBLE);
     }
 
     public void openNFCSettings(View view) { // ça me sert de bouton pour les tests aussi. c'est normal si li y a un peu de la merde dedans
@@ -144,6 +153,10 @@ public class collect_data extends AppCompatActivity {
 
     @Override
     public void onNewIntent(Intent intent) {
+        progressBar4.setVisibility(View.INVISIBLE);
+        textView4.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        tv_progress.setVisibility(View.VISIBLE);
 
         //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -311,6 +324,7 @@ public class collect_data extends AppCompatActivity {
 
         Calendar now = Calendar.getInstance();
         Sensor.last_collect_time = now.getTimeInMillis();
+        tv.setVisibility(View.VISIBLE);
 
     }
 

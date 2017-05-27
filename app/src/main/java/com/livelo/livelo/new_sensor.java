@@ -1,5 +1,5 @@
 package com.livelo.livelo;
-
+//TODO : récupérer l'id et envoyer la fréquence et démarer après avois appuyé sur le bouton
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -17,12 +17,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Calendar;
 
+import static com.livelo.livelo.R.id.progressBar2;
 import static java.util.Arrays.copyOf;
 
 public class new_sensor extends AppCompatActivity {
@@ -46,41 +48,44 @@ public class new_sensor extends AppCompatActivity {
     EditText editPeriod;
     //TextView editId;
     CheckBox checkBoxOpenSource;
+    ProgressBar progressBar2;
 
 
 
-    @Override
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle("New sensor");
-        setContentView(R.layout.activity_new_sensor);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        // client = new com.google.android.gms.common.api.GoogleApiClient.Builder(this).addApi(com.google.android.gms.appindexing.AppIndex.API).build();
-        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+            super.onCreate(savedInstanceState);
+            getSupportActionBar().setTitle("New sensor");
+            setContentView(R.layout.activity_new_sensor);
+            myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        if (!myNfcAdapter.isEnabled()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
-            toast.show();
-        }
+            if (!myNfcAdapter.isEnabled()) {
+                Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
+                toast.show();
+            }
 
-        editName = (EditText) findViewById(R.id.editName);
-        editLastName = (EditText) findViewById(R.id.editLastName);
-        editCompany = (EditText) findViewById(R.id.editCompany);
-        editLocation = (EditText) findViewById(R.id.editLocation);
-        editType = (EditText) findViewById(R.id.editType);
-        editPeriod = (EditText) findViewById(R.id.editPeriod);
-        //editId = (TextView) findViewById(R.id.editId);
-        checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
+            editName = (EditText) findViewById(R.id.editName);
+            editLastName = (EditText) findViewById(R.id.editLastName);
 
-        mPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter nfcv = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
-        mFilters = new IntentFilter[]{
-                nfcv,
-        };
-        mTechLists = new String[][]{new String[]{NfcV.class.getName()},
-                new String[]{NdefFormatable.class.getName()}};
+            editCompany = (EditText) findViewById(R.id.editCompany);
+            editLocation = (EditText) findViewById(R.id.editLocation);
+            editType = (EditText) findViewById(R.id.editType);
+            editPeriod = (EditText) findViewById(R.id.editPeriod);
+
+            //editId = (TextView) findViewById(R.id.editId);
+            checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
+            progressBar2 = (ProgressBar) findViewById(R.id.progressBar2);
+            //progressBar3.setVisibility(View.INVISIBLE);
+
+            mPendingIntent = PendingIntent.getActivity(this, 0,
+                    new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            IntentFilter nfcv = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+            mFilters = new IntentFilter[]{
+                    nfcv,
+            };
+            mTechLists = new String[][]{new String[]{NfcV.class.getName()},
+                    new String[]{NdefFormatable.class.getName()}};
 
 
     }
@@ -170,7 +175,7 @@ public class new_sensor extends AppCompatActivity {
         if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
                 mTechLists);
         ////////////// pas sur que ça marche.............. sinon le remettre dans le onresume
-
+        progressBar2.setVisibility(View.VISIBLE);
     }
 
     /*
@@ -179,7 +184,7 @@ public class new_sensor extends AppCompatActivity {
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
             // TODO activate the gps, or request to activate it
             // TODO get the location
-            // TODO set lat and lng in the text view
+            // TODO set lat and lng in the text view + city??
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             LocationListener locationListener = new MyLocationListener();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);

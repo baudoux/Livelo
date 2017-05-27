@@ -1,6 +1,9 @@
 package com.livelo.livelo;
 
 import android.content.Intent;
+import android.nfc.NfcAdapter;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,8 +15,10 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 
+
 public class menu extends AppCompatActivity {
     TextView txt = null;
+    private NfcAdapter myNfcAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +26,7 @@ public class menu extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_menu);
         txt = (TextView) findViewById(R.id.last_upload);
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         refresh_time();
     }
@@ -31,6 +37,18 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_collect(View view) {
+        if (!myNfcAdapter.isEnabled()) {
+            Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                startActivity(intent);
+            }
+            return;
+        }
+
         Intent intent = new Intent(this, collect_data.class);
         startActivity(intent);
     }
@@ -46,6 +64,17 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_reset(View view) {
+        if (!myNfcAdapter.isEnabled()) {
+            Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                startActivity(intent);
+            }
+            return;
+        }
         Intent intent = new Intent(this, reset.class);
         startActivity(intent);
     }
