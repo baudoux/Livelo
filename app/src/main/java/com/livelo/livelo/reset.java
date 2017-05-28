@@ -84,6 +84,9 @@ public class reset extends AppCompatActivity {
             tv_reset.append("Error");
         }
 
+//TODO: Add a toast when the reset is done ?
+
+
         // go back to the menu activity
         Intent intent2 = new Intent(this, menu.class);
         startActivity(intent2);
