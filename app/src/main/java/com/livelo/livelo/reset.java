@@ -14,8 +14,9 @@ import android.app.Activity;
         import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+import android.widget.Toast;
 
-        import java.io.IOException;
+import java.io.IOException;
 
 /**
  * Created by Nico on 12/05/2017.
@@ -76,6 +77,15 @@ public class reset extends AppCompatActivity {
                 };
 
                 nfcv.transceive(command);
+
+                ///////Check if reset is done///////
+                byte resetIsDone[] = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
+                if((resetIsDone[0] & (byte)-128)==0){
+                    Toast.makeText(getBaseContext(), "Reset Done",Toast.LENGTH_SHORT).show();
+                }
+
+
+
             } else {
             }
             nfcv.close();
