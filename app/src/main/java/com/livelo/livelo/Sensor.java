@@ -11,6 +11,6 @@ public class Sensor {
     public static long start_time = 0;
     public static long last_collect_time = 0;
 
-    public static String filesNames = "data/files_names.txt";
-    public static String sensorsId = "sensors/id.txt";
+    public static String filesNames = "files_names.txt";
+    public static String sensorsId = "id.txt";
 }

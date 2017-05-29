@@ -61,6 +61,8 @@ public class collect_data extends AppCompatActivity {
         progressBar.setMax(32);
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
+        data.setText("");
+
         if (!myNfcAdapter.isEnabled()) {
             Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
         }
@@ -83,6 +85,8 @@ public class collect_data extends AppCompatActivity {
         tv.setVisibility(View.INVISIBLE);
         textView4.setVisibility(View.VISIBLE);
         progressBar4.setVisibility(View.VISIBLE);
+        data.setVisibility(View.VISIBLE);
+
     }
 
     public void openNFCSettings(View view) { // ça me sert de bouton pour les tests aussi. c'est normal si li y a un peu de la merde dedans
@@ -157,6 +161,7 @@ public class collect_data extends AppCompatActivity {
         textView4.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         tv_progress.setVisibility(View.VISIBLE);
+        data.setVisibility(View.VISIBLE);
 
         //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -204,7 +209,7 @@ public class collect_data extends AppCompatActivity {
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
 
-                String fileName = "data/" + now_string + "_" +id_string.toString() + ".txt";
+                String fileName = now_string + "_" +id_string.toString() + ".txt";
 
                 // TODO for ou while
                 byte index[];
@@ -297,7 +302,7 @@ public class collect_data extends AppCompatActivity {
                         String readstring=String.copyValueOf(inputBuffer,0,charRead);
                         s +=readstring;
                     }
-//                    InputRead.close();
+                    InputRead.close();
 //                    Toast.makeText(getBaseContext(), s,Toast.LENGTH_SHORT).show();
                     data.setText(s);
 

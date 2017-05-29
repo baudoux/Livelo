@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 import static com.livelo.livelo.R.layout.activity_sensors;
 
@@ -18,6 +22,7 @@ public class sensors extends AppCompatActivity {
     // TODO faire une liste scroll pour afficher les capteurs
 
     private NfcAdapter myNfcAdapter;
+    private TextView tvSensrosList;
 
     //ListView list;
     private String[] prenoms = new String[]{
@@ -34,7 +39,30 @@ public class sensors extends AppCompatActivity {
         setContentView(activity_sensors);
         getSupportActionBar().setTitle("Sensors");
 
-       // list = (ListView) findViewById(R.id.list);
+        tvSensrosList = (TextView) findViewById(R.id.tvSensrosList);
+
+        try {
+            FileInputStream fileIn = openFileInput(Sensor.sensorsId);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+
+            char[] inputBuffer= new char[100];
+            String s = "";
+            int charRead;
+
+            while ((charRead=InputRead.read(inputBuffer))>0) {
+                // char to string conversion
+                String readstring=String.copyValueOf(inputBuffer,0,charRead);
+                s +=readstring;
+            }
+            InputRead.close();
+            tvSensrosList.setText(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        // list = (ListView) findViewById(R.id.list);
 
 //        // my_child_toolbar is defined in the layout file
 //        Toolbar myChildToolbar =
