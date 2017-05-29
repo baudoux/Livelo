@@ -203,9 +203,6 @@ public class collect_data extends AppCompatActivity {
 //                        + "\nOpen source : " + (Sensor.open_source ? "yes" : "no")
 //                        + "\nid : " + id_string.toString());
 
-
-                // commencer le refresh pour la progressbar
-                refresh();
                 // get now for file name
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
