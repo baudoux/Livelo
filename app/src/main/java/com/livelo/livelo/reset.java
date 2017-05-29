@@ -117,4 +117,10 @@ public class reset extends AppCompatActivity {
         myNfcAdapter.disableForegroundDispatch(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, menu.class);
+        startActivity(intent);
+    }
+
 }

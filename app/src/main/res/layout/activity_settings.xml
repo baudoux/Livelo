@@ -43,7 +43,16 @@
                     android:textSize="18sp" />
 
             </LinearLayout>
-
+            <EditText
+                android:id="@+id/editPeriod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editType"
+                android:layout_centerHorizontal="true"
+                android:ems="10"
+                android:hint="Sampling period"
+                android:inputType="number"
+                android:textColor="#000000" />
             <Switch
                 android:id="@+id/on_off"
                 android:layout_width="match_parent"
@@ -62,12 +71,6 @@
                 android:textColor="#000000"
                 android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/myText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="myText"
-                android:textAlignment="center" />
         </LinearLayout>
     </ScrollView>
 

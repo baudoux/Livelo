@@ -1,5 +1,6 @@
 package com.livelo.livelo;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,9 +13,11 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -37,7 +40,7 @@ public class settings extends AppCompatActivity {
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private TextView myText;
+    private EditText editPeriod;
 
 
 
@@ -47,9 +50,9 @@ public class settings extends AppCompatActivity {
         getSupportActionBar().setTitle("Settings");
         setContentView(R.layout.activity_settings);
 
-        myText = (TextView) findViewById(R.id.myText);
 
         set_period = (Spinner) findViewById(R.id.set_period);
+        editPeriod = (EditText) findViewById(R.id.editPeriod);
         progressBarWaitSettings = (ProgressBar) findViewById(R.id.progressBarWaitSettings);
         tvWaitSettings = (TextView) findViewById(R.id.tvWaitSettings);
         scrollSettings = (ScrollView) findViewById(R.id.scrollSettings);
@@ -96,8 +99,12 @@ public class settings extends AppCompatActivity {
                 //myText.append("\nTag DSF: " + String.format("%02X ", nfcv.getDsfId()));
                 //byte[] buffer;
 
+                String tmp = editPeriod.getText().toString();
+                if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
+
+
                 if(period < 0.1){
-                    myText.append("Enter a sampling period bigger than 0.1 minute");
+                    Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -161,12 +168,13 @@ public class settings extends AppCompatActivity {
 
 
     public void update(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
         if (myNfcAdapter == null){
-            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // TODO prendre les info
         if (!myNfcAdapter.isEnabled()) {
             Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -199,4 +207,9 @@ public class settings extends AppCompatActivity {
         myNfcAdapter.disableForegroundDispatch(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, menu.class);
+        startActivity(intent);
+    }
 }

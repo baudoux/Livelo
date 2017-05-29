@@ -223,4 +223,10 @@ public class new_sensor extends AppCompatActivity {
         super.onPause();
         myNfcAdapter.disableForegroundDispatch(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, sensors.class);
+        startActivity(intent);
+    }
 }
