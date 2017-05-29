@@ -310,6 +310,7 @@ public class collect_data extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
                 /////////////////////keep the name of the file in files_names.txt ///////////////////////////
                 try {
                     fileout = openFileOutput(Sensor.filesNames, MODE_PRIVATE);
