@@ -2,11 +2,13 @@ package com.livelo.livelo;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.nfc.NfcAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import static com.livelo.livelo.R.layout.activity_sensors;
 
@@ -14,6 +16,8 @@ import static com.livelo.livelo.R.layout.activity_sensors;
 public class sensors extends AppCompatActivity {
 
     // TODO faire une liste scroll pour afficher les capteurs
+
+    private NfcAdapter myNfcAdapter;
 
     //ListView list;
     private String[] prenoms = new String[]{
@@ -63,6 +67,12 @@ public class sensors extends AppCompatActivity {
     }
 */
     public void goto_new_sensor(View view) {
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Intent intent = new Intent(this, new_sensor.class);
         startActivity(intent);
     }

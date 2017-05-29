@@ -12,91 +12,105 @@
     style="@style/AppTheme"
     android:background="#000485">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="collect data"
-        android:id="@+id/button_collect"
-        android:onClick="goto_collect"
-        android:layout_below="@+id/button_sensors"
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:textSize="18dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="sensors"
-        android:id="@+id/button_sensors"
-        android:onClick="goto_sensor"
-        android:layout_below="@+id/last_upload"
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:textSize="18dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="help"
-        android:id="@+id/button_help"
-        android:onClick="goto_help"
-        android:layout_below="@+id/button_collect"
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:textSize="18dp" />
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        android:id="@+id/button6"
-        android:onClick="goto_settings"
-        android:layout_below="@+id/button_help"
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:textSize="18dp" />
-
-    <Button
-        android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:onClick="goto_reset"
-        android:layout_below="@+id/button6"
-        android:text="reset sensor"
-        android:textColor="#000000"
-        android:textSize="18dp" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/logo" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_send"
-        android:src="@drawable/send_data"
-        android:adjustViewBounds="false"
-        android:background="#000485"
-        android:onClick="send_data"
-        android:layout_below="@+id/imageView"
-        android:layout_centerHorizontal="true" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Last uploading: 3 days ago"
-        android:id="@+id/last_upload"
-        android:layout_below="@+id/button_send"
-        android:layout_centerHorizontal="true"
-        android:textColor="#ffffff"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp" />
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/logo" />
+
+            <ImageButton
+                android:id="@+id/button_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imageView"
+                android:layout_centerHorizontal="true"
+                android:adjustViewBounds="false"
+                android:background="#000485"
+                android:onClick="send_data"
+                android:src="@drawable/send_data" />
+
+            <TextView
+                android:id="@+id/last_upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_send"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:text="Last uploading: 3 days ago"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#ffffff"
+                android:textSize="20dp" />
+
+            <Button
+                android:id="@+id/button6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_help"
+                android:layout_centerHorizontal="true"
+                android:onClick="goto_settings"
+                android:text="Settings"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/button_collect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_sensors"
+                android:layout_centerHorizontal="true"
+                android:onClick="goto_collect"
+                android:text="collect data"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/button_sensors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/last_upload"
+                android:layout_centerHorizontal="true"
+                android:onClick="goto_sensor"
+                android:text="sensors"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button6"
+                android:layout_centerHorizontal="true"
+                android:onClick="goto_reset"
+                android:text="reset sensor"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/button_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_collect"
+                android:layout_centerHorizontal="true"
+                android:onClick="goto_help"
+                android:text="help"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

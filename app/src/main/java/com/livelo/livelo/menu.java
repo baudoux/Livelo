@@ -37,6 +37,12 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_collect(View view) {
+        if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        else
         if (!myNfcAdapter.isEnabled()) {
             Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -59,11 +65,21 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_settings(View view) {
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Intent intent = new Intent(this, settings.class);
         startActivity(intent);
     }
 
     public void goto_reset(View view) {
+        if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!myNfcAdapter.isEnabled()) {
             Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

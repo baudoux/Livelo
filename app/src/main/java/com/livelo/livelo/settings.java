@@ -85,6 +85,10 @@ public class settings extends AppCompatActivity {
 
 
     public void update(View view) {
+        if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // TODO prendre les info
         if (!myNfcAdapter.isEnabled()) {
