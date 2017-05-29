@@ -116,4 +116,12 @@ public class menu extends AppCompatActivity {
         long days = diff / (1000); //24*60*60;
         txt.setText("last uploading: " + (days == 0?( "today"):(days == 1? "one day ago": days + " days ago")));
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
+    }
+
 }

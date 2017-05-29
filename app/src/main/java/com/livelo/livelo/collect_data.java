@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static java.lang.StrictMath.round;
+
 public class collect_data extends AppCompatActivity {
 
     private NfcAdapter myNfcAdapter;
@@ -45,6 +47,18 @@ public class collect_data extends AppCompatActivity {
 
     byte[] id;
     private int k = 0;
+    byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+    byte readCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
+    byte[] buffer;// buffer containing the data
+    Tag detectedTag;
+    NfcV nfcv;
+    int blockCount = 1;
+    String fileName;
+
+    private Intent intentNFC;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,42 +104,6 @@ public class collect_data extends AppCompatActivity {
     }
 
     public void openNFCSettings(View view) { // ça me sert de bouton pour les tests aussi. c'est normal si li y a un peu de la merde dedans
-        refresh();
-//        String textmsg = "alsdkfhéalkjshfdlasdf";
-//
-//        try {
-//            FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
-//            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-//            outputWriter.write(textmsg.toString());
-//            outputWriter.close();
-//
-//            //display file saved message
-//            Toast.makeText(getBaseContext(), "File saved successfully!",
-//                    Toast.LENGTH_SHORT).show();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        try {
-//            FileInputStream fileIn = openFileInput("mytextfile.txt");
-//            InputStreamReader InputRead = new InputStreamReader(fileIn);
-//
-//            char[] inputBuffer= new char[100];
-//            String s = "";
-//            int charRead;
-//
-//            while ((charRead=InputRead.read(inputBuffer))>0) {
-//                // char to string conversion
-//                String readstring=String.copyValueOf(inputBuffer,0,charRead);
-//                s +=readstring;
-//            }
-//            InputRead.close();
-//            Toast.makeText(getBaseContext(), s,Toast.LENGTH_SHORT).show();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
             startActivity(intent);
@@ -140,14 +118,90 @@ public class collect_data extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int timeToBlink = 100;    //in milissegunds
-                try{Thread.sleep(timeToBlink);}catch (Exception e) {}
+                int timeRead = 100;    //in milissegunds
+                try{Thread.sleep(timeRead);}catch (Exception e) {}
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if(k<=32) refresh();
+
+                        readOneBlock();
+
+                        k++;
+
+                        try{
+                            nfcv.connect();
+                            nfcv.transceive(readCommand);
+                            nfcv.close();
+                        } catch (IOException e) {
+                            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        if (k < 31) {
+                            refresh();
+                        }
+                        else {
+                            readOneBlock();
+
+                            // close the data file
+                            try{
+                                outputWriter.close();
+                            } catch (IOException e) {
+                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                            }
+
+
+                            //////////////////////Reset the device /////////////////////
+                            try{
+                                nfcv.connect();
+                                nfcv.transceive(resetCommand);
+                                nfcv.close();
+                            } catch (IOException e) {
+                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                            }
+
+                            /////////////////////read the file///////////////////////////
+                            try {
+                                FileInputStream fileIn = openFileInput(fileName);
+                                InputStreamReader InputRead = new InputStreamReader(fileIn);
+
+                                char[] inputBuffer = new char[100];
+                                String s = "";
+                                int charRead;
+
+                                while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                                    // char to string conversion
+                                    String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                                    s += readstring;
+                                }
+                                InputRead.close();
+                                data.setText(s);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            /////////////////////keep the name of the file in files_names.txt ///////////////////////////
+                            try {
+                                fileout = openFileOutput(Sensor.filesNames, MODE_PRIVATE);
+                                outputWriter = new OutputStreamWriter(fileout);
+                                outputWriter.write(fileName + "\n");
+                                outputWriter.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+    //__________________________________________________________________________________________________
+                            try{
+                                nfcv.close();
+                            } catch (IOException e) {
+                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                            }
+                            Calendar now = Calendar.getInstance();
+                            Sensor.last_collect_time = now.getTimeInMillis();
+                        }
                         progressBar.setProgress(k);
-                        tv_progress.setText("loading : " + String.valueOf((float)k/32*100) + "%");
+                        tv_progress.setText("loading : " + String.valueOf(round((float) k / 31 * 100)) + "%");
+
                     }
                 });
             }
@@ -165,8 +219,9 @@ public class collect_data extends AppCompatActivity {
         tv.setVisibility(View.VISIBLE);
 
         //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
-        Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        NfcV nfcv = NfcV.get(detectedTag);
+        intentNFC = intent;
+        detectedTag = intentNFC.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        nfcv = NfcV.get(detectedTag);
         try {
             nfcv.connect();
             if (nfcv.isConnected()) {
@@ -191,143 +246,45 @@ public class collect_data extends AppCompatActivity {
                     Date start_time = new Date(Sensor.start_time);
                     fDateStartTime = new SimpleDateFormat("dd-MM-yyyy").format(start_time);
                 }
-//
-//                tv.setText("Sensor detected:"
-//                        + "\nName : " + Sensor.first_name
-//                        + "\nLast name : " + Sensor.last_name
-//                        + "\nCompany : " + Sensor.company
-//                        + "\nLocation : " + Sensor.location
-//                        + "\nType : " + Sensor.type
-//                        + "\nWorking since : " + fDateStartTime
-//                        + "\nLase collect : " + fDateLastCollect
-//                        + "\nOpen source : " + (Sensor.open_source ? "yes" : "no")
-//                        + "\nid : " + id_string.toString());
+
+                tv.setText("Sensor detected:"
+                        + "\nName : " + Sensor.first_name
+                        + "\nLast name : " + Sensor.last_name
+                        + "\nCompany : " + Sensor.company
+                        + "\nLocation : " + Sensor.location
+                        + "\nType : " + Sensor.type
+                        + "\nWorking since : " + fDateStartTime
+                        + "\nLase collect : " + fDateLastCollect
+                        + "\nOpen source : " + (Sensor.open_source ? "yes" : "no")
+                        + "\nid : " + id_string.toString()
+                        + "\n");
 
                 // get now for file name
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
 
-                String fileName = now_string + "_" +id_string.toString() + ".txt";
+                fileName = now_string + "_" +id_string.toString() + ".txt";
 
                 // TODO for ou while
                 byte index[];
                 index = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06});
-                int samplingNb = ((index[4] & 0xff) << 8) | (index[5] & 0xff);
 
-                fileout=openFileOutput(fileName, MODE_PRIVATE);
+                fileout = openFileOutput(fileName, MODE_PRIVATE);
                 outputWriter = new OutputStreamWriter(fileout);
 
-                int blockCount = 1;
-
-
-                for ( k = 0; k < 1; k++) { //32 corresponds to 32*2048
-                    progressBar.setProgress(k);
-                    tv_progress.setText("loading : " + String.valueOf((byte)(k/32.*100 + .5)) + "%");
-
-                    /////////////////Start transferring from FRAM to RAM////////////////
-                    byte command[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
-                    nfcv.transceive(command);
-                    ////////////////////wait 100 ms///////////////////////
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {@Override public void run() {}}, 100);
-                    //////////////////Initialize transfer from RAM to phone////////////
-                    byte[] buffer;// buffer containing the data
-                    StringBuilder sb = new StringBuilder();
-                    byte i = 0x44; //Start block of data
-                    int j = 0;
-                    //////////////////Start transfer/////////////////////
-                    //First blocks from 0x644 to 0x6FF
-                    while (j < 188) {
-                        buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x06});//Read single block
-                        for(int l = 0 ; l < buffer.length; l++){
-                            if(l%2 == 1){
-                                Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
-                                Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l+1] & 0xFF)).replace(' ', '0'));
-                                int  currentData = ((buffer[l] & 0xff) << 8) | (buffer[l+1] & 0xff);
-//-------------------------------------------------------------------------------------------------- lecture ici
-                                try {
-                                    outputWriter.write(String.format("%1$d",currentData) + "\n");
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        j++;
-                        i++;
-                        blockCount++;
-                    }
-
-                    //Second blocks
-                    j = 0;
-                    while (j < 68) {
-                        buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x07});
-                        for(int l = 0 ; l < buffer.length; l++) {
-                            if (l % 2 == 1) {
-                                Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
-                                Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
-                                int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
-//-------------------------------------------------------------------------------------------------- lecture ici
-                                try {
-                                    outputWriter.write(String.format("%1$d",currentData) + "\n");
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        j++;
-                        i++;
-                        blockCount++;
-                    }
-                }
-
-                outputWriter.close();
-
-                //////////////////////Reset the device /////////////////////
-                byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
-                nfcv.transceive(resetCommand);
-
-                /////////////////////read the file///////////////////////////
-                try {
-                    FileInputStream fileIn = openFileInput(fileName);
-                    InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-                    char[] inputBuffer= new char[100];
-                    String s = "";
-                    int charRead;
-
-                    while ((charRead = InputRead.read(inputBuffer))>0) {
-                        // char to string conversion
-                        String readstring=String.copyValueOf(inputBuffer,0,charRead);
-                        s +=readstring;
-                    }
-                    InputRead.close();
-//                    Toast.makeText(getBaseContext(), s,Toast.LENGTH_SHORT).show();
-                    data.setText(s);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                /////////////////////keep the name of the file in files_names.txt ///////////////////////////
-                try {
-                    fileout = openFileOutput(Sensor.filesNames, MODE_PRIVATE);
-                    outputWriter = new OutputStreamWriter(fileout);
-                    outputWriter.write(fileName + "\n");
-                    outputWriter.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-//__________________________________________________________________________________________________
+                // ask for the first block
+                nfcv.transceive(readCommand);
+                // FIXME peut etre qu'il faut atterndre 100ms ici mais je pense pas
+                // start the reading function;
+                refresh();
                 nfcv.close();
-
             } else
                 Toast.makeText(getBaseContext(), "Not connected to the tag",Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
         }
+        tv_progress.setText("enf of onNewIntent");
 
-        Calendar now = Calendar.getInstance();
-        Sensor.last_collect_time = now.getTimeInMillis();
     }
 
 
@@ -348,6 +305,69 @@ public class collect_data extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(this, menu.class);
         startActivity(intent);
+    }
+
+    public void readOneBlock(){
+        byte i = 0x44; //Start block of data
+        int j = 0;
+        //////////////////Start transfer/////////////////////
+        //First blocks from 0x644 to 0x6FF
+        try{
+            nfcv.connect();
+            while (j < 188) {
+                try{
+                    buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x06});//Read single block
+                } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                }
+            for(int l = 0 ; l < buffer.length; l++){
+                    if(l%2 == 1){
+                        Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
+                        Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l+1] & 0xFF)).replace(' ', '0'));
+                        int  currentData = ((buffer[l] & 0xff) << 8) | (buffer[l+1] & 0xff);
+    //-------------------------------------------------------------------------------------------------- lecture ici
+                        try {
+                            outputWriter.write(String.format("%1$d",currentData) + "\n");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                j++;
+                i++;
+                blockCount++;
+            }
+
+            //Second blocks
+            j = 0;
+            while (j < 68) {
+                try{
+                    buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x07});
+                } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                }
+            for(int l = 0 ; l < buffer.length; l++) {
+                    if (l % 2 == 1) {
+                        Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
+                        Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
+                        int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
+    //-------------------------------------------------------------------------------------------------- lecture ici
+                        try {
+                            outputWriter.write(String.format("%1$d",currentData) + "\n");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                j++;
+                i++;
+                blockCount++;
+            }
+            nfcv.close();
+        }catch (IOException e) {
+            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }
