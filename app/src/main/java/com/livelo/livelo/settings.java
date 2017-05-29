@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.NfcV;
 import android.os.Build;
@@ -21,6 +22,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class settings extends AppCompatActivity {
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
+    private TextView myText;
 
 
 
@@ -43,6 +46,9 @@ public class settings extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle("Settings");
         setContentView(R.layout.activity_settings);
+
+        myText = (TextView) findViewById(R.id.myText);
+
         set_period = (Spinner) findViewById(R.id.set_period);
         progressBarWaitSettings = (ProgressBar) findViewById(R.id.progressBarWaitSettings);
         tvWaitSettings = (TextView) findViewById(R.id.tvWaitSettings);
@@ -77,6 +83,76 @@ public class settings extends AppCompatActivity {
 
     public void onNewIntent(Intent intent) {
         // TODO connexion nfc ici et mettre les paremetres dans le sensor
+
+        int period = 0; //en minutes
+
+        Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        NfcV nfcv = NfcV.get(detectedTag);
+        try {
+            nfcv.connect();
+            if (nfcv.isConnected()) {
+                //myText.append("Connected to the tag");
+                //myText.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
+                //myText.append("\nTag DSF: " + String.format("%02X ", nfcv.getDsfId()));
+                //byte[] buffer;
+
+                if(period < 0.1){
+                    myText.append("Enter a sampling period bigger than 0.1 minute");
+                    return;
+                }
+
+                int periodInMs = period * 60 * 1000; //period in ms
+
+                byte periodInMsB[] = new byte[4];
+
+                for(int i=0; i<4; i++ )
+                {
+                    periodInMsB[i] = (byte) (periodInMs >>(i*8));
+                }
+
+                byte command1[] = new byte[]{
+                        0x00,
+                        0x21,
+                        (byte) 3,
+                        periodInMsB[0],
+                        periodInMsB[1],
+                        periodInMsB[2],
+                        periodInMsB[3],
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00
+                };
+
+                nfcv.transceive(command1);
+
+                //Start pressure sampling every periodInMs msecs
+                byte command[] = new byte[]{
+                        0x00,
+                        0x21,
+                        (byte) 0,
+                        0x01, //General control register
+                        0x00, //Firmware Status register
+                        0x10, //Sensor control register
+                        0x10, //Frequency control register: custom time
+                        0x02, //Number of passes register
+                        0x01, //Averaging register
+                        0x01, //Interrupt control register: infinite sampling
+                        0x00 //Error control register
+                };
+
+                nfcv.transceive(command);
+
+
+                nfcv.close();
+            } else{
+
+            }
+
+        } catch (IOException e) {
+            //myText.append("Error");
+        }
+
 
         // back to the menu activity
         Intent intent2 = new Intent(this, menu.class);
