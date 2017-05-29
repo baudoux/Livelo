@@ -88,6 +88,8 @@ public class settings extends AppCompatActivity {
         // TODO connexion nfc ici et mettre les paremetres dans le sensor
 
         int period = 0; //en minutes
+        String tmp = editPeriod.getText().toString();
+        if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
 
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NfcV nfcv = NfcV.get(detectedTag);
@@ -99,8 +101,6 @@ public class settings extends AppCompatActivity {
                 //myText.append("\nTag DSF: " + String.format("%02X ", nfcv.getDsfId()));
                 //byte[] buffer;
 
-                String tmp = editPeriod.getText().toString();
-                if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
 
 
                 if(period < 0.1){

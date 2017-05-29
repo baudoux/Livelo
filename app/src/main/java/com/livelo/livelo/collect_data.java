@@ -40,8 +40,8 @@ public class collect_data extends AppCompatActivity {
     private ProgressBar progressBar;
     private ProgressBar progressBar4;
     private Handler progressBarHandler = new Handler();
-    FileOutputStream fileout;
-    OutputStreamWriter outputWriter;
+    private FileOutputStream fileout;
+    private OutputStreamWriter outputWriter;
 
     byte[] id;
     private int k = 0;
@@ -204,7 +204,7 @@ public class collect_data extends AppCompatActivity {
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
 
-                String fileName = now_string + "_" +id_string.toString() + ".txt";
+                String fileName = "data/" + now_string + "_" +id_string.toString() + ".txt";
 
                 // TODO for ou while
                 byte index[];

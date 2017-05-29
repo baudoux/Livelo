@@ -22,7 +22,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Calendar;
 
 import static com.livelo.livelo.R.id.progressBarWaitNewSensor;
@@ -46,16 +48,18 @@ public class new_sensor extends AppCompatActivity {
     private EditText editCompany;
     private EditText editLocation;
     private EditText editType;
-    private EditText editPeriod;
     private CheckBox checkBoxOpenSource;
     private ProgressBar progressBarWaitNewSensor;
     private ScrollView ScrollNewSensor;
     private TextView tvWaitNewSensor;
 
+    private FileOutputStream fileout;
+    private OutputStreamWriter outputWriter;
 
 
 
-        @Override
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             getSupportActionBar().setTitle("New sensor");
@@ -68,7 +72,6 @@ public class new_sensor extends AppCompatActivity {
             editCompany = (EditText) findViewById(R.id.editCompany);
             editLocation = (EditText) findViewById(R.id.editLocation);
             editType = (EditText) findViewById(R.id.editType);
-            editPeriod = (EditText) findViewById(R.id.editPeriod);
             checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
             progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
             ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
@@ -122,12 +125,6 @@ public class new_sensor extends AppCompatActivity {
             if (nfcv.isConnected()) {
 
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
-
-                //StringBuilder id_string = new StringBuilder();
-                //for (byte b : id) {
-                //    id_string.append(String.format("%02X", b));
-                //}
-                //editId.setText(id_string.toString());
                 nfcv.close();
             }
         } catch (IOException e) {
@@ -146,8 +143,6 @@ public class new_sensor extends AppCompatActivity {
         Sensor.company = editCompany.getText().toString();
         Sensor.location = editLocation.getText().toString();
         Sensor.type = editType.getText().toString();
-        String tmp = editPeriod.getText().toString();
-        if (!tmp.isEmpty()) Sensor.sampling_period = Integer.parseInt(tmp);
         Sensor.open_source = checkBoxOpenSource.isChecked();
 
         // TODO check for invalid inputs
@@ -157,8 +152,44 @@ public class new_sensor extends AppCompatActivity {
             return;
         }
 
+        /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
+        StringBuilder idString = new StringBuilder();
 
-        // TODO transmettre la sampling period au capteur
+        for (int i = 0; i < id.length; i++) {
+            String hex = Integer.toHexString(0xFF & id[i]);
+            if (hex.length() == 1) {
+                idString.append('0');
+            }
+            idString.append(hex);
+        }
+
+
+        try {
+            fileout = openFileOutput(Sensor.sensorsId, MODE_PRIVATE);
+            outputWriter = new OutputStreamWriter(fileout);
+            outputWriter.write(idString.toString() + "\n");
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        /////////////////////create "id".txt in sensors and keep sensor's info in it ///////////////////////////
+
+        try {
+            fileout = openFileOutput(idString.toString() + ".txt", MODE_PRIVATE);
+            outputWriter = new OutputStreamWriter(fileout);
+            outputWriter.write(Sensor.first_name + "\n");
+            outputWriter.write(Sensor.last_name + "\n");
+            outputWriter.write(Sensor.company + "\n");
+            outputWriter.write(Sensor.location + "\n");
+            outputWriter.write(Sensor.type + "\n");
+            outputWriter.write(Sensor.open_source + "\n");
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
 
         Calendar now = Calendar.getInstance();
@@ -176,15 +207,11 @@ public class new_sensor extends AppCompatActivity {
 
 
     public void goto_add_new_sensor(View view) {
-        // TODO si possible commencer le filtre des intents ici
-        //////////////////////////////////////////////////////////////////////////////////////////// essai
-
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
                 mTechLists);
-        ////////////// pas sur que ça marche.............. sinon le remettre dans le onresume
         ScrollNewSensor.setVisibility(View.INVISIBLE);
         progressBarWaitNewSensor.setVisibility(View.VISIBLE);
         tvWaitNewSensor.setVisibility(View.VISIBLE);
