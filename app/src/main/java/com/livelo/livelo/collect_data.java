@@ -162,6 +162,7 @@ public class collect_data extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         tv_progress.setVisibility(View.VISIBLE);
         data.setVisibility(View.VISIBLE);
+        tv.setVisibility(View.VISIBLE);
 
         //if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -222,7 +223,7 @@ public class collect_data extends AppCompatActivity {
                 int blockCount = 1;
 
 
-                for ( k = 0; k < 3; k++) { //32 corresponds to 32*2048
+                for ( k = 0; k < 1; k++) { //32 corresponds to 32*2048
                     progressBar.setProgress(k);
                     tv_progress.setText("loading : " + String.valueOf((byte)(k/32.*100 + .5)) + "%");
 
@@ -329,8 +330,6 @@ public class collect_data extends AppCompatActivity {
 
         Calendar now = Calendar.getInstance();
         Sensor.last_collect_time = now.getTimeInMillis();
-        tv.setVisibility(View.VISIBLE);
-
     }
 
 
