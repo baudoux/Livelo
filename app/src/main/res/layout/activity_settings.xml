@@ -9,70 +9,62 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.livelo.livelo.settings">
 
-    <ScrollView
-        android:id="@+id/scrollSettings"
+    <RelativeLayout
+        android:id="@+id/settingsLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentStart="true">
 
-        <LinearLayout
+        <Switch
+            android:id="@+id/on_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/editPeriod"
+            android:layout_marginTop="27dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:splitTrack="false"
+            android:text="ON / OFF      "
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/editPeriod"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView3"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:textColor="#000000" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+        <Button
+            android:id="@+id/pudate_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:onClick="update"
+            android:text="Update"
+            android:textColor="#000000"
+            android:textSize="18sp" />
 
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Sampling period : "
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <Spinner
-                    android:id="@+id/set_period"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-            </LinearLayout>
-            <EditText
-                android:id="@+id/editPeriod"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/editType"
-                android:layout_centerHorizontal="true"
-                android:ems="10"
-                android:hint="Sampling period"
-                android:inputType="number"
-                android:textColor="#000000" />
-            <Switch
-                android:id="@+id/on_off"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="ON / OFF"
-                android:textColor="#000000"
-                android:textSize="18sp" />
-
-            <Button
-                android:id="@+id/pudate_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="update"
-                android:text="Update"
-                android:textColor="#000000"
-                android:textSize="18sp" />
-
-        </LinearLayout>
-    </ScrollView>
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sampling period [min] :"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/progressBarWaitSettings"
@@ -91,4 +83,5 @@
         android:text="Connect the sensor"
         android:textSize="30sp"
         android:visibility="gone"/>
+
 </RelativeLayout>

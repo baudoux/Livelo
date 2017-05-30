@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -31,17 +32,17 @@ import java.util.List;
 
 public class settings extends AppCompatActivity {
 
-    private Spinner set_period;
+    //private Spinner set_period;
     private ProgressBar progressBarWaitSettings ;
     private TextView tvWaitSettings;
-    private ScrollView scrollSettings;
+    //private ScrollView scrollSettings;
 
     private NfcAdapter myNfcAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
     private EditText editPeriod;
-
+    private RelativeLayout settingsLayout;
 
 
     @Override
@@ -51,22 +52,23 @@ public class settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
 
-        set_period = (Spinner) findViewById(R.id.set_period);
+        //set_period = (Spinner) findViewById(R.id.set_period);
         editPeriod = (EditText) findViewById(R.id.editPeriod);
         progressBarWaitSettings = (ProgressBar) findViewById(R.id.progressBarWaitSettings);
         tvWaitSettings = (TextView) findViewById(R.id.tvWaitSettings);
-        scrollSettings = (ScrollView) findViewById(R.id.scrollSettings);
-        List<String> list = new ArrayList<String>();
-        list.add("5 min");
-        list.add("15 min");
-        list.add("30 min");
-        list.add("1h");
-        list.add("2h");
-        list.add("6h");
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        set_period.setAdapter(dataAdapter);
+        settingsLayout = (RelativeLayout) findViewById(R.id.settingsLayout);
+        //scrollSettings = (ScrollView) findViewById(R.id.scrollSettings);
+//        List<String> list = new ArrayList<String>();
+//        list.add("5 min");
+//        list.add("15 min");
+//        list.add("30 min");
+//        list.add("1h");
+//        list.add("2h");
+//        list.add("6h");
+//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+//                android.R.layout.simple_spinner_item, list);
+//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        set_period.setAdapter(dataAdapter);
 
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
@@ -79,9 +81,10 @@ public class settings extends AppCompatActivity {
         mTechLists = new String[][]{new String[]{NfcV.class.getName()},
                 new String[]{NdefFormatable.class.getName()}};
 
-        scrollSettings.setVisibility(View.VISIBLE);
+        //scrollSettings.setVisibility(View.VISIBLE);
         progressBarWaitSettings.setVisibility(View.INVISIBLE);
         tvWaitSettings.setVisibility(View.INVISIBLE);
+        settingsLayout.setVisibility(View.VISIBLE);
     }
 
     public void onNewIntent(Intent intent) {
@@ -189,9 +192,11 @@ public class settings extends AppCompatActivity {
         if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
                 mTechLists);
 
-        scrollSettings.setVisibility(View.INVISIBLE);
+        //scrollSettings.setVisibility(View.INVISIBLE);
         progressBarWaitSettings.setVisibility(View.VISIBLE);
         tvWaitSettings.setVisibility(View.VISIBLE);
+        settingsLayout.setVisibility(View.INVISIBLE);
+
 
     }
 

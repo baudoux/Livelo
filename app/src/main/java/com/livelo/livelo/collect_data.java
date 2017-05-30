@@ -72,7 +72,7 @@ public class collect_data extends AppCompatActivity {
         tv_progress = (TextView) findViewById(R.id.tv_progress);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar4 = (ProgressBar) findViewById(R.id.progressBar4);
-        progressBar.setMax(32);
+        progressBar.setMax(31);
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         data.setText("");
@@ -283,7 +283,7 @@ public class collect_data extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
         }
-        tv_progress.setText("enf of onNewIntent");
+        tv_progress.setText("connection started");
 
     }
 
