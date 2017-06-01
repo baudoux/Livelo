@@ -16,7 +16,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Start a new sensor"
+        android:text="register a new sensor"
         android:textSize="24sp" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView"
-        android:text="collect data"
+        android:text="Change the sampling period"
         android:textSize="24sp" />
 
     <TextView
@@ -36,7 +36,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView2"
-        android:text="TextView"
+        android:text="Turn on or off a sensor"
         android:textSize="24sp" />
 
     <TextView
@@ -46,7 +46,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView7"
-        android:text="TextView"
+        android:text="collect data on a registered sensor"
         android:textSize="24sp" />
 
     <TextView
@@ -56,7 +56,17 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView8"
-        android:text="TextView"
+        android:text="Update my offline data and upload the measurements"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView9"
+        android:text="Get info about the sensor"
         android:textSize="24sp" />
 
 </RelativeLayout>

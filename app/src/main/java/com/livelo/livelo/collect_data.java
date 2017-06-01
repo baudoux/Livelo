@@ -137,7 +137,7 @@ public class collect_data extends AppCompatActivity {
                         }
 
 
-                        if (k < 31) {
+                        if (k < 1) {
                             refresh();
                         }
                         else {

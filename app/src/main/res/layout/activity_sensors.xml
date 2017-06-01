@@ -14,7 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/button_search_id"
-        android:layout_above="@+id/new_sensor_button">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,7 +28,7 @@
                 android:id="@+id/tvSensrosList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                android:text="Sensor 1\nSensor 2\nSensor 3\n.\n.\n."
                 android:textSize="24sp" />
         </LinearLayout>
     </ScrollView>
