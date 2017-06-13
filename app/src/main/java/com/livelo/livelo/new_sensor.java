@@ -61,39 +61,41 @@ public class new_sensor extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            getSupportActionBar().setTitle("New sensor");
-            setContentView(R.layout.activity_new_sensor);
-            myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        super.onCreate(savedInstanceState);
+        getSupportActionBar().setTitle("New sensor");
+        setContentView(R.layout.activity_new_sensor);
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-            editName = (EditText) findViewById(R.id.editName);
-            editLastName = (EditText) findViewById(R.id.editLastName);
+        editName = (EditText) findViewById(R.id.editName);
+        editLastName = (EditText) findViewById(R.id.editLastName);
 
-            editCompany = (EditText) findViewById(R.id.editCompany);
-            editLocation = (EditText) findViewById(R.id.editLocation);
-            editType = (EditText) findViewById(R.id.editType);
-            checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
-            progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
-            ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
-            tvWaitNewSensor = (TextView) findViewById(R.id.tvWaitNewSensor);
-            ScrollNewSensor.setVisibility(View.VISIBLE);
-            progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
-            tvWaitNewSensor.setVisibility(View.INVISIBLE);
+        editCompany = (EditText) findViewById(R.id.editCompany);
+        editLocation = (EditText) findViewById(R.id.editLocation);
+        editType = (EditText) findViewById(R.id.editType);
+        checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
+        progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
+        ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
+        tvWaitNewSensor = (TextView) findViewById(R.id.tvWaitNewSensor);
+        ScrollNewSensor.setVisibility(View.VISIBLE);
+        progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
+        tvWaitNewSensor.setVisibility(View.INVISIBLE);
 
-            if (!myNfcAdapter.isEnabled()) {
-                Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
-                toast.show();
-            }
+        if (!myNfcAdapter.isEnabled()) {
+            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
+            toast.show();
+        }
 
 
-            mPendingIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-            IntentFilter nfcv = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
-            mFilters = new IntentFilter[]{
-                    nfcv,
-            };
-            mTechLists = new String[][]{new String[]{NfcV.class.getName()},
-                    new String[]{NdefFormatable.class.getName()}};
+        mPendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter nfcv = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        mFilters = new IntentFilter[]{
+                nfcv,
+        };
+        mTechLists = new String[][]{new String[]{NfcV.class.getName()},
+                new String[]{NdefFormatable.class.getName()}};
+
+        // TODO turn on the GPS here to be quicker to get the location at the end
 
 
 
@@ -216,6 +218,8 @@ public class new_sensor extends AppCompatActivity {
         progressBarWaitNewSensor.setVisibility(View.VISIBLE);
         tvWaitNewSensor.setVisibility(View.VISIBLE);
     }
+
+
 
     /*
         public void get_location(View view) {

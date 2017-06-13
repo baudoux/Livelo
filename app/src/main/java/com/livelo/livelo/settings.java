@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.valueOf;
+
 public class settings extends AppCompatActivity {
 
     //private Spinner set_period;
@@ -43,6 +45,7 @@ public class settings extends AppCompatActivity {
     private String[][] mTechLists;
     private EditText editPeriod;
     private RelativeLayout settingsLayout;
+    private float period = 0; //en minutes
 
 
     @Override
@@ -90,10 +93,6 @@ public class settings extends AppCompatActivity {
     public void onNewIntent(Intent intent) {
         // TODO connexion nfc ici et mettre les paremetres dans le sensor
 
-        int period = 0; //en minutes
-        String tmp = editPeriod.getText().toString();
-        if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
-
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NfcV nfcv = NfcV.get(detectedTag);
         try {
@@ -106,12 +105,7 @@ public class settings extends AppCompatActivity {
 
 
 
-                if(period < 0.1){
-                    Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int periodInMs = period * 60 * 1000; //period in ms
+                int periodInMs = (int)(period * 60 * 1000); //period in ms
 
                 byte periodInMsB[] = new byte[4];
 
@@ -174,6 +168,14 @@ public class settings extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+        String tmp = editPeriod.getText().toString();
+        if (!tmp.isEmpty()) period = Float.parseFloat(tmp);
+
+        if(period < 0.05){
+            Toast.makeText(getBaseContext(), "invalid period, must be al least 0.05", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (myNfcAdapter == null){
             return;
         }
@@ -198,6 +200,11 @@ public class settings extends AppCompatActivity {
         settingsLayout.setVisibility(View.INVISIBLE);
 
 
+    }
+
+    public void click_on_background(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 

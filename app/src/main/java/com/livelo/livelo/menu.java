@@ -12,6 +12,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Calendar;
 
 
@@ -99,6 +104,8 @@ public class menu extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), "sending data", Toast.LENGTH_SHORT);
         toast.show();
 
+        send_data();
+
         // TODO if uploading succeed
         Calendar now = Calendar.getInstance();
         Global.last_upload = now.getTimeInMillis();
@@ -122,6 +129,10 @@ public class menu extends AppCompatActivity {
         moveTaskToBack(true);
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
+    }
+
+    public void send_data(){
+
     }
 
 }
