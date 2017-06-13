@@ -80,14 +80,15 @@
                 android:textColor="#000000" />
 
             <EditText
-                android:id="@+id/editPeriod"
+                android:id="@+id/editComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/editType"
-                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/editLocation"
+                android:layout_toLeftOf="@+id/_button"
+                android:layout_toStartOf="@+id/_button"
                 android:ems="10"
-                android:hint="Sampling period"
-                android:inputType="number"
+                android:hint="Comment"
+                android:inputType="textPersonName"
                 android:textColor="#000000" />
 
             <Button

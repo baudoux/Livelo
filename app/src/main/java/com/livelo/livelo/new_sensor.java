@@ -1,8 +1,8 @@
 package com.livelo.livelo;
-//TODO : récupérer l'id et envoyer la fréquence et démarer après avois appuyé sur le bouton
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -12,6 +12,7 @@ import android.nfc.tech.NfcV;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +22,9 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,13 +46,16 @@ public class new_sensor extends AppCompatActivity {
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
+
     byte[] id = {};
+    StringBuilder idString = new StringBuilder();
 
     private EditText editName;
     private EditText editLastName;
     private EditText editCompany;
     private EditText editLocation;
     private EditText editType;
+    private EditText editComment;
     private CheckBox checkBoxOpenSource;
     private ProgressBar progressBarWaitNewSensor;
     private ScrollView ScrollNewSensor;
@@ -73,6 +80,7 @@ public class new_sensor extends AppCompatActivity {
         editCompany = (EditText) findViewById(R.id.editCompany);
         editLocation = (EditText) findViewById(R.id.editLocation);
         editType = (EditText) findViewById(R.id.editType);
+        editComment = (EditText) findViewById(R.id.editComment);
         checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
         progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
         ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
@@ -133,19 +141,13 @@ public class new_sensor extends AppCompatActivity {
         } catch (IOException e) {
         }
 
-        //FIXME sûrement inutile
-        if(id.length == 0){
-            Toast toast = Toast.makeText(getApplicationContext(), "Get sensor's id before", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
-
         Sensor.id = copyOf(id, id.length);
         Sensor.first_name = editName.getText().toString();
         Sensor.last_name = editLastName.getText().toString();
         Sensor.company = editCompany.getText().toString();
         Sensor.location = editLocation.getText().toString();
         Sensor.type = editType.getText().toString();
+        Sensor.comment = editComment.getText().toString();
         Sensor.open_source = checkBoxOpenSource.isChecked();
 
         // TODO check for invalid inputs
@@ -156,7 +158,6 @@ public class new_sensor extends AppCompatActivity {
         }
 
         /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
-        StringBuilder idString = new StringBuilder();
 
         for (int i = 0; i < id.length; i++) {
             String hex = Integer.toHexString(0xFF & id[i]);
@@ -166,7 +167,50 @@ public class new_sensor extends AppCompatActivity {
             idString.append(hex);
         }
 
+        //TODO regarder si le sensor existe déjà
+        if(true) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+            builder.setTitle("sensor already exits");
+            builder.setMessage("Do you want to overwrite the previous one?");
+
+            builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int which) {
+                    add_sensor();
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Toast.makeText(getApplicationContext(), "cancelled", Toast.LENGTH_SHORT).show();
+                    ScrollNewSensor.setVisibility(View.VISIBLE);
+                    progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
+                    tvWaitNewSensor.setVisibility(View.INVISIBLE);
+
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog alert = builder.create();
+            alert.show();
+            if (false) {
+            }
+        }
+
+
+
+    }
+
+
+    public void add_sensor() {
+
+
+        //TODO en json???
         try {
             fileout = openFileOutput(Sensor.sensorsId, MODE_APPEND | MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
@@ -179,6 +223,25 @@ public class new_sensor extends AppCompatActivity {
 
         /////////////////////create "id".txt in sensors and keep sensor's info in it ///////////////////////////
 
+        //TODO stocker les infos du sensor dans un fichies (json???) overwrite
+        //???????
+        JSONObject object = new JSONObject();
+        try {
+            object.put("id", idString.toString());
+            object.put("first_name", Sensor.first_name);
+            object.put("last_name", Sensor.last_name);
+            object.put("company", Sensor.company);
+            object.put("location", Sensor.location);
+            object.put("type", Sensor.type);
+            object.put("comment", Sensor.comment);
+            object.put("open_source", Sensor.open_source);
+            Calendar now = Calendar.getInstance();
+            object.put("set_up_time", now.getTimeInMillis());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
         try {
             fileout = openFileOutput(idString.toString() + ".txt", MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
@@ -187,6 +250,7 @@ public class new_sensor extends AppCompatActivity {
             outputWriter.write(Sensor.company + "\n");
             outputWriter.write(Sensor.location + "\n");
             outputWriter.write(Sensor.type + "\n");
+            outputWriter.write(Sensor.comment + "\n");
             outputWriter.write(Sensor.open_source + "\n");
             outputWriter.close();
         } catch (Exception e) {
@@ -204,8 +268,6 @@ public class new_sensor extends AppCompatActivity {
 
         Intent intent2 = new Intent(this, sensors.class);
         startActivity(intent2);
-
-
     }
 
 

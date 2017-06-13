@@ -4,7 +4,7 @@ package com.livelo.livelo;
  * Created by Remi on 14/05/2017.
  */
 public class Sensor {
-    public static String first_name = "", last_name = "", company = "", type = "", location = "";
+    public static String first_name = "", last_name = "", company = "", type = "", location = "", comment = "";
     public static int sampling_period = 0;
     public static byte id[];
     public static boolean open_source = true;
