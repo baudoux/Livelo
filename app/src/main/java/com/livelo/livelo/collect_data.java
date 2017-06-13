@@ -41,7 +41,6 @@ public class collect_data extends AppCompatActivity {
     private TextView tv_progress;
     private ProgressBar progressBar;
     private ProgressBar progressBar4;
-    private Handler progressBarHandler = new Handler();
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
     public static String dataForMail;
