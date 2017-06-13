@@ -90,12 +90,12 @@ public class settings extends AppCompatActivity {
     public void onNewIntent(Intent intent) {
         // TODO connexion nfc ici et mettre les paremetres dans le sensor
 
-        int period = 0; //en minutes
+        float period = 0; //en minutes
         String tmp = editPeriod.getText().toString();
-        if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
+        if (!tmp.isEmpty()) period = Float.parseFloat(tmp);
 
-        tmp = editPeriod.getText().toString();
-        if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
+        //tmp = editPeriod.getText().toString();
+        //if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
 
 
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -110,12 +110,12 @@ public class settings extends AppCompatActivity {
 
 
 
-                if(period < 0.1){
+                if(period < 0.01){
                     Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                int periodInMs = period * 60 * 1000; //period in ms
+                int periodInMs = (int)(period * 60 * 1000); //period in ms
 
                 byte periodInMsB[] = new byte[4];
 
