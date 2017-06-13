@@ -25,6 +25,7 @@ import android.widget.Toast;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.Calendar;
 
 import static com.livelo.livelo.R.id.progressBarWaitNewSensor;
@@ -167,7 +168,7 @@ public class new_sensor extends AppCompatActivity {
 
 
         try {
-            fileout = openFileOutput(Sensor.sensorsId, MODE_PRIVATE);
+            fileout = openFileOutput(Sensor.sensorsId, MODE_APPEND | MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
             outputWriter.write(idString.toString() + "\n");
             outputWriter.close();

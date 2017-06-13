@@ -294,8 +294,7 @@ public class collect_data extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
-                mTechLists);
+        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
     }
 
     @Override
