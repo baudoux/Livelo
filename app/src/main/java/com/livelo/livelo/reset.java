@@ -62,7 +62,7 @@ public class reset extends AppCompatActivity {
                 tv_reset.append("\nTag DSF: " + Byte.toString(nfcv.getDsfId()));
 
 
-                byte command[] = new byte[]{//Send reset
+                /*byte command[] = new byte[]{//Send reset
                         0x00,
                         0x21,
                         (byte) 0,
@@ -74,6 +74,21 @@ public class reset extends AppCompatActivity {
                         0x01, //Averaging register
                         0x00, //Interrupt control register: infinite sampling
                         0x00 //Error control register
+                };*/
+
+                byte command[] = new byte[]{//reset seulement du senseur/mémoire
+                        0x00,
+                        0x21,
+                        (byte) 0,
+                        0x01, //General control register
+                        0x00, //Firmware Status register
+                        0x40, //Sensor control register: temp reset
+                        0x03, //Frequency control register
+                        0x01, //Number of passes register
+                        0x01, //Averaging register
+                        0x00, //Interrupt control register
+                        //0x20 //Error control register: log into ram
+                        0x00
                 };
 
                 nfcv.transceive(command);

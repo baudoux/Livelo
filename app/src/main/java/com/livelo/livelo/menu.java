@@ -36,6 +36,7 @@ public class menu extends AppCompatActivity {
         refresh_time();
     }
 
+
     public void goto_sensor(View view) {
         Intent intent = new Intent(this, sensors.class);
         startActivity(intent);
@@ -110,6 +111,18 @@ public class menu extends AppCompatActivity {
         Calendar now = Calendar.getInstance();
         Global.last_upload = now.getTimeInMillis();
         refresh_time();
+
+        //Send a mail with data
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("message/rfc822");
+        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"nicolas.li@hotmail.fr","denis.gillet@epfl.ch"});
+        i.putExtra(Intent.EXTRA_SUBJECT, "Pressure data");
+        i.putExtra(Intent.EXTRA_TEXT   , collect_data.dataForMail);
+        try {
+            startActivity(Intent.createChooser(i, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(menu.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     void refresh_time(){

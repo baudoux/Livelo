@@ -44,6 +44,7 @@ public class collect_data extends AppCompatActivity {
     private Handler progressBarHandler = new Handler();
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
+    public static String dataForMail;
 
     byte[] id;
     private int k = 0;
@@ -176,6 +177,8 @@ public class collect_data extends AppCompatActivity {
                                 }
                                 InputRead.close();
                                 data.setText(s);
+
+                                dataForMail += s +"\n";
 
                             } catch (Exception e) {
                                 e.printStackTrace();
