@@ -94,6 +94,10 @@ public class settings extends AppCompatActivity {
         String tmp = editPeriod.getText().toString();
         if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
 
+        tmp = editPeriod.getText().toString();
+        if (!tmp.isEmpty()) period = Integer.parseInt(tmp);
+
+
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NfcV nfcv = NfcV.get(detectedTag);
         try {
