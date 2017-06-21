@@ -2,6 +2,7 @@ package com.livelo.livelo;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -10,6 +11,7 @@ import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.NfcV;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -164,6 +166,22 @@ public class settings extends AppCompatActivity {
     }
 
 
+
+    public void choose_period(View view) {
+  //      new AlertDialog.Builder(this)
+  //              // .setSingleChoiceItems(items, 0, null)
+  //              .setPositiveButton(R.string.editPeriod, new DialogInterface.OnClickListener() {
+  //                  public void onClick(DialogInterface dialog, int whichButton) {
+  //                      dialog.dismiss();
+  //                      int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+  //                      // Do something useful withe the position of the selected radio button
+  //                  }
+  //              })
+  //              .show();
+    }
+
+
+
     public void update(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -177,6 +195,7 @@ public class settings extends AppCompatActivity {
         }
 
         if (myNfcAdapter == null){
+            Toast.makeText(getBaseContext(), "NFC is not available on this device",Toast.LENGTH_SHORT).show();
             return;
         }
 

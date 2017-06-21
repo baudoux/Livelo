@@ -18,11 +18,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,7 +51,10 @@ public class collect_data extends AppCompatActivity {
     private ProgressBar progressBar4;
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
+    private StringBuilder id_string;
     public static String dataForMail;
+
+    public JSONArray data_array;
 
     byte[] id;
     private int k = 0;
@@ -77,13 +88,7 @@ public class collect_data extends AppCompatActivity {
 
         data.setText("");
 
-        if (!myNfcAdapter.isEnabled()) {
-            Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
-        }
-        /*if (myNfcAdapter == null)
-            myText.setText("NFC is not available for the device!!!");
-        else
-            myText.setText("NFC is available for the device");*/
+
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -100,6 +105,8 @@ public class collect_data extends AppCompatActivity {
         textView4.setVisibility(View.VISIBLE);
         progressBar4.setVisibility(View.VISIBLE);
         data.setVisibility(View.VISIBLE);
+
+        data_array = new JSONArray();
 
     }
 
@@ -143,14 +150,6 @@ public class collect_data extends AppCompatActivity {
                         else {
                             readOneBlock();
 
-                            // close the data file
-                            try{
-                                outputWriter.close();
-                            } catch (IOException e) {
-                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
-                            }
-
-
                             //////////////////////Reset the device /////////////////////
                             try{
                                 nfcv.connect();
@@ -160,46 +159,98 @@ public class collect_data extends AppCompatActivity {
                                 Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
                             }
 
-                            /////////////////////read the file///////////////////////////
+                            long now = System.currentTimeMillis()/1000;
+                            String now_string =   new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(now*1000));
+
+                            // create the log object////////////////////////////////////////////////
+                            JSONObject log_json = new JSONObject();
                             try {
-                                FileInputStream fileIn = openFileInput(fileName);
-                                InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-                                char[] inputBuffer = new char[100];
-                                String s = "";
-                                int charRead;
-
-                                while ((charRead = InputRead.read(inputBuffer)) > 0) {
-                                    // char to string conversion
-                                    String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                                    s += readstring;
-                                }
-                                InputRead.close();
-                                data.setText(s);
-
-                                dataForMail += s +"\n";
-
-                            } catch (Exception e) {
+                                log_json.put("id", id_string);
+                                log_json.put("date", now);
+                                // json_log.put("period", );
+                                // json_log.put("number of samples", );
+                                log_json.put("data", data_array);
+                            } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
-                            /////////////////////keep the name of the file in files_names.txt ///////////////////////////
+                            // store it in a file //////////////////////////////////////////////////
                             try {
-                                fileout = openFileOutput(Sensor.filesNames, MODE_PRIVATE);
+                                fileout = openFileOutput(now_string + "_" +id_string.toString() + ".json", MODE_PRIVATE);
                                 outputWriter = new OutputStreamWriter(fileout);
-                                outputWriter.write(fileName + "\n");
+                                outputWriter.write(log_json.toString());
                                 outputWriter.close();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-    //__________________________________________________________________________________________________
+
+                            // get the string of the json
+                            // try {
+                            //     FileInputStream fileIn = openFileInput(now_string + "_" +id_string.toString() + ".json");
+                            //     InputStreamReader InputRead = new InputStreamReader(fileIn);
+//
+                            //     char[] inputBuffer = new char[100];
+                            //     String s = "";
+                            //     int charRead;
+//
+                            //     while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                            //         // char to string conversion
+                            //         String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                            //         s += readstring;
+                            //         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                            //     }
+                            //     InputRead.close();
+                            // } catch (Exception e) {
+                            //     e.printStackTrace();
+                            // }
+
+                            // FIXME faire qqch pour si le file existe pas, ou le créer de toutes façons dans l'app
+
+                            // parse the json string
+                            String s = "";
+                            JSONArray log_files = new JSONArray();
+
+                            File file = new File("log_files.json");
+                            if(file.exists()) {
+                                try {
+                                    FileInputStream fileIn = openFileInput("log_files.json");
+                                    InputStreamReader InputRead = new InputStreamReader(fileIn);
+                                    char[] inputBuffer = new char[100];
+                                    int charRead;
+                                    while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                                        // char to string conversion
+                                        String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                                        s += readstring;
+                                        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                                        log_files = new JSONArray(s);
+                                    }
+                                    InputRead.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            /////////////////////keep the name of the file in files_names.txt ///////////////////////////
+                            try {
+                                log_files.put(now_string + "_" + id_string.toString() + ".json");
+                                fileout = openFileOutput("log_files.json", MODE_PRIVATE);
+                                outputWriter = new OutputStreamWriter(fileout);
+                                outputWriter.write(log_files.toString());
+                                outputWriter.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Sensor.logFile = now_string + "_" + id_string.toString() + ".json";
+
+
+                            //__________________________________________________________________________________________________
                             try{
                                 nfcv.close();
                             } catch (IOException e) {
                                 Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
                             }
-                            Calendar now = Calendar.getInstance();
-                            Sensor.last_collect_time = now.getTimeInMillis();
+                            Toast.makeText(getApplicationContext(), "done", Toast.LENGTH_LONG).show();
+
                         }
                         progressBar.setProgress(k);
                         tv_progress.setText("loading : " + String.valueOf(round((float) k / 31 * 100)) + "%");
@@ -230,37 +281,70 @@ public class collect_data extends AppCompatActivity {
                 // get device id
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
 
-                StringBuilder id_string = new StringBuilder();
+                id_string = new StringBuilder();
                 for (byte b : id) {
                     id_string.append(String.format("%02X", b));
                 }
 
                 // TODO find sensor by id
+                File file = new File(id_string.toString() + ".json");
+                if(!file.exists()){
+                    tv.setText("Sensor detected: unknown sensor");
+                }else {
+                    // read the json
+                    String s = "";
+                    try {
+                        FileInputStream fileIn = openFileInput(id_string.toString() + ".json");
+                        InputStreamReader InputRead = new InputStreamReader(fileIn);
+                        char[] inputBuffer = new char[100];
+                        int charRead;
+                        while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                            // char to string conversion
+                            String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                            s += readstring;
+                            Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                        }
+                        InputRead.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    // create the object
+                    // extract data
 
-                String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
-                if (Sensor.last_collect_time != 0) {
-                    Date last_collect = new Date(Sensor.last_collect_time);
-                    fDateLastCollect = new SimpleDateFormat("dd-MM-yyyy").format(last_collect);
+                    try {
+                        JSONObject sensor = new JSONObject(s);// mettre la string en argument
+                        tv.setText("Sensor detected:"
+                                        + "\nid : " + sensor.getString("id")
+                                        + "\nName : " + sensor.getString("first_name")
+                                        + "\nLast name : " + sensor.getString("last_name")
+                                        + "\nCompany : " + sensor.getString("company")
+                                        + "\nLocation : " + sensor.getString("location")
+                                        + "\nType : " + sensor.getString("type")
+                                        + "\nComment : " + sensor.getString("comment")
+                                        + "\nOpen source : " + sensor.getBoolean("open_source")
+                                        + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time")*1000))
+                                        + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time")*1000))
+                                        + "\n");
+                        long now = System.currentTimeMillis()/1000;
+                        sensor.put("last_collect_time", now);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+
+                    String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
+                    if (Sensor.last_collect_time != 0) {
+                        Date last_collect = new Date(Sensor.last_collect_time);
+                        fDateLastCollect = new SimpleDateFormat("dd-MM-yyyy").format(last_collect);
+                    }
+
+                    String fDateStartTime = "never"; // shouldn't append if an id is an id is assigned
+                    if (Sensor.start_time != 0) {
+                        Date start_time = new Date(Sensor.start_time);
+                        fDateStartTime = new SimpleDateFormat("dd-MM-yyyy").format(start_time);
+                    }
                 }
-
-                String fDateStartTime = "never"; // shouldn't append if an id is an id is assigned
-                if (Sensor.start_time != 0) {
-                    Date start_time = new Date(Sensor.start_time);
-                    fDateStartTime = new SimpleDateFormat("dd-MM-yyyy").format(start_time);
-                }
-
-                tv.setText("Sensor detected:"
-                        + "\nName : " + Sensor.first_name
-                        + "\nLast name : " + Sensor.last_name
-                        + "\nCompany : " + Sensor.company
-                        + "\nLocation : " + Sensor.location
-                        + "\nType : " + Sensor.type
-                        + "\nWorking since : " + fDateStartTime
-                        + "\nLase collect : " + fDateLastCollect
-                        + "\nOpen source : " + (Sensor.open_source ? "yes" : "no")
-                        + "\nid : " + id_string.toString()
-                        + "\n");
-
                 // get now for file name
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
@@ -276,7 +360,6 @@ public class collect_data extends AppCompatActivity {
 
                 // ask for the first block
                 nfcv.transceive(readCommand);
-                // FIXME peut etre qu'il faut atterndre 100ms ici mais je pense pas
                 // start the reading function;
                 refresh();
                 nfcv.close();
@@ -326,7 +409,8 @@ public class collect_data extends AppCompatActivity {
                         Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
                         Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l+1] & 0xFF)).replace(' ', '0'));
                         int  currentData = ((buffer[l] & 0xff) << 8) | (buffer[l+1] & 0xff);
-    //-------------------------------------------------------------------------------------------------- lecture ici
+                        data_array.put(currentData);
+                        //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
                             outputWriter.write(String.format("%1$d",currentData) + "\n");
                         } catch (Exception e) {
@@ -352,7 +436,8 @@ public class collect_data extends AppCompatActivity {
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
                         int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
-    //-------------------------------------------------------------------------------------------------- lecture ici
+                        data_array.put(currentData);
+                        //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
                             outputWriter.write(String.format("%1$d",currentData) + "\n");
                         } catch (Exception e) {

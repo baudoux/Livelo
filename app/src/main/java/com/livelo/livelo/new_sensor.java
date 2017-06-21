@@ -26,11 +26,20 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.livelo.livelo.R.id.progressBarWaitNewSensor;
 import static java.util.Arrays.copyOf;
@@ -47,7 +56,7 @@ public class new_sensor extends AppCompatActivity {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
 
-    byte[] id = {};
+    byte[] id = {1,2,3,4,5,6,7,8,9,0};
     StringBuilder idString = new StringBuilder();
 
     private EditText editName;
@@ -141,21 +150,6 @@ public class new_sensor extends AppCompatActivity {
         } catch (IOException e) {
         }
 
-        Sensor.id = copyOf(id, id.length);
-        Sensor.first_name = editName.getText().toString();
-        Sensor.last_name = editLastName.getText().toString();
-        Sensor.company = editCompany.getText().toString();
-        Sensor.location = editLocation.getText().toString();
-        Sensor.type = editType.getText().toString();
-        Sensor.comment = editComment.getText().toString();
-        Sensor.open_source = checkBoxOpenSource.isChecked();
-
-        // TODO check for invalid inputs
-        if (check_inputs()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "invalid input", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
 
         /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
 
@@ -168,12 +162,11 @@ public class new_sensor extends AppCompatActivity {
         }
 
         //TODO regarder si le sensor existe déjà
-        if(true) {
+        File file = new File(idString.toString() + ".json");
+        if(file.exists()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
             builder.setTitle("sensor already exits");
             builder.setMessage("Do you want to overwrite the previous one?");
-
             builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface dialog, int which) {
@@ -186,12 +179,10 @@ public class new_sensor extends AppCompatActivity {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
                     Toast.makeText(getApplicationContext(), "cancelled", Toast.LENGTH_SHORT).show();
                     ScrollNewSensor.setVisibility(View.VISIBLE);
                     progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
                     tvWaitNewSensor.setVisibility(View.INVISIBLE);
-
                     dialog.dismiss();
                 }
             });
@@ -210,52 +201,96 @@ public class new_sensor extends AppCompatActivity {
     public void add_sensor() {
 
 
-        //TODO en json???
-        try {
-            fileout = openFileOutput(Sensor.sensorsId, MODE_APPEND | MODE_PRIVATE);
-            outputWriter = new OutputStreamWriter(fileout);
-            outputWriter.write(idString.toString() + "\n");
-            outputWriter.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        //try {
+        //    fileout = openFileOutput(Sensor.sensorsId, MODE_APPEND | MODE_PRIVATE);
+        //    outputWriter = new OutputStreamWriter(fileout);
+        //    outputWriter.write(idString.toString() + "\n");
+        //    outputWriter.close();
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
+
+        /////////////////////keep data in json object ///////////////////////////
+
+        Sensor.id = copyOf(id, id.length);
+        Sensor.first_name = editName.getText().toString();
+        Sensor.last_name = editLastName.getText().toString();
+        Sensor.company = editCompany.getText().toString();
+        Sensor.location = editLocation.getText().toString();
+        Sensor.type = editType.getText().toString();
+        Sensor.comment = editComment.getText().toString();
+        Sensor.open_source = checkBoxOpenSource.isChecked();
+
+        // TODO check for invalid inputs
+        if (check_inputs()) {
+            Toast toast = Toast.makeText(getApplicationContext(), "invalid input", Toast.LENGTH_SHORT);
+            toast.show();
+            return;
         }
 
 
-        /////////////////////create "id".txt in sensors and keep sensor's info in it ///////////////////////////
+        /////////////////////keep data in json object ///////////////////////////
 
-        //TODO stocker les infos du sensor dans un fichies (json???) overwrite
-        //???????
-        JSONObject object = new JSONObject();
+        JSONObject new_sensor_json = new JSONObject();
         try {
-            object.put("id", idString.toString());
-            object.put("first_name", Sensor.first_name);
-            object.put("last_name", Sensor.last_name);
-            object.put("company", Sensor.company);
-            object.put("location", Sensor.location);
-            object.put("type", Sensor.type);
-            object.put("comment", Sensor.comment);
-            object.put("open_source", Sensor.open_source);
-            Calendar now = Calendar.getInstance();
-            object.put("set_up_time", now.getTimeInMillis());
+            new_sensor_json.put("id", id);
+            new_sensor_json.put("first_name", Sensor.first_name);
+            new_sensor_json.put("last_name", Sensor.last_name);
+            new_sensor_json.put("company", Sensor.company);
+            new_sensor_json.put("location", Sensor.location);
+            new_sensor_json.put("type", Sensor.type);
+            new_sensor_json.put("comment", Sensor.comment);
+            new_sensor_json.put("open_source", Sensor.open_source);
+            long now = System.currentTimeMillis()/1000;
+            new_sensor_json.put("set_up_time", now);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-
+        /////////////////////keep sensor in a file ///////////////////
         try {
-            fileout = openFileOutput(idString.toString() + ".txt", MODE_PRIVATE);
+            fileout = openFileOutput("1234567890" + ".json", MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
-            outputWriter.write(Sensor.first_name + "\n");
-            outputWriter.write(Sensor.last_name + "\n");
-            outputWriter.write(Sensor.company + "\n");
-            outputWriter.write(Sensor.location + "\n");
-            outputWriter.write(Sensor.type + "\n");
-            outputWriter.write(Sensor.comment + "\n");
-            outputWriter.write(Sensor.open_source + "\n");
+            outputWriter.write(new_sensor_json.toString());
             outputWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            FileInputStream fileIn = openFileInput("1234567890" + ".json");
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+
+            char[] inputBuffer = new char[100];
+            String s = "";
+            int charRead;
+
+            while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                // char to string conversion
+                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                s += readstring;
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+            InputRead.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        //try {
+        //    fileout = openFileOutput(idString.toString() + ".txt", MODE_PRIVATE);
+        //    outputWriter = new OutputStreamWriter(fileout);
+        //    outputWriter.write(Sensor.first_name + "\n");
+        //    outputWriter.write(Sensor.last_name + "\n");
+        //    outputWriter.write(Sensor.company + "\n");
+        //    outputWriter.write(Sensor.location + "\n");
+        //    outputWriter.write(Sensor.type + "\n");
+        //    outputWriter.write(Sensor.comment + "\n");
+        //    outputWriter.write(Sensor.open_source + "\n");
+        //    outputWriter.close();
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
 
 
 
@@ -272,30 +307,93 @@ public class new_sensor extends AppCompatActivity {
 
 
     public void goto_add_new_sensor(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        // pour debugger
+        add_sensor();
+        return;
+        /////////////////////
 
-        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
-                mTechLists);
-        ScrollNewSensor.setVisibility(View.INVISIBLE);
-        progressBarWaitNewSensor.setVisibility(View.VISIBLE);
-        tvWaitNewSensor.setVisibility(View.VISIBLE);
+
+        //InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//
+//
+        //if (myNfcAdapter == null){
+        //    Toast.makeText(getBaseContext(), "NFC is not available on this device",Toast.LENGTH_SHORT).show();
+        //    return;
+        //}
+//
+        //if (!myNfcAdapter.isEnabled()) {
+        //    Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
+        //    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        //        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+        //        startActivity(intent);
+        //    } else {
+        //        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+        //        startActivity(intent);
+        //    }
+        //    return;
+        //}
+//
+//
+//
+        //if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
+        //        mTechLists);
+        //ScrollNewSensor.setVisibility(View.INVISIBLE);
+        //progressBarWaitNewSensor.setVisibility(View.VISIBLE);
+        //tvWaitNewSensor.setVisibility(View.VISIBLE);
     }
 
 
 
-    /*
-        public void get_location(View view) {
-            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            // TODO activate the gps, or request to activate it
-            // TODO get the location
-            // TODO set lat and lng in the text view + city??
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            LocationListener locationListener = new MyLocationListener();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+
+    public void get_location(View view) {
+        JSONObject log_json = new JSONObject();
+        try {
+            log_json.put("id", "éasldkjféalkjsldf");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-    */
+
+        try {
+            fileout = openFileOutput("test" + ".json", MODE_PRIVATE);
+            outputWriter = new OutputStreamWriter(fileout);
+            outputWriter.write(log_json.toString());
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileInputStream fileIn = openFileInput("test" + ".json");
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+
+            char[] inputBuffer = new char[100];
+            String s = "";
+            int charRead;
+
+            while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                // char to string conversion
+                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                s += readstring;
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+            InputRead.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        //InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        //// TODO activate the gps, or request to activate it
+        //// TODO get the location
+        //// TODO set lat and lng in the text view + city??
+        //LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //LocationListener locationListener = new MyLocationListener();
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+    }
+
     private boolean check_inputs() {
         // TODO complete
         return false;
