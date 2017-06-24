@@ -47,6 +47,7 @@ public class settings extends AppCompatActivity {
     private RelativeLayout settingsLayout;
     private float period = 0; //en minutes
 
+    byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x40, 0x03, 0x01, 0x01, 0x00, 0x00};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +104,21 @@ public class settings extends AppCompatActivity {
                 //myText.append("\nTag DSF: " + String.format("%02X ", nfcv.getDsfId()));
                 //byte[] buffer;
 
+                //////////////////////Reset the device /////////////////////
+                try{
+                    //nfcv.connect();
+                    nfcv.transceive(resetCommand);
+                    ///////Check if reset is done///////
+                    byte[] resetIsDone;
+                    resetIsDone = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
+                    if((resetIsDone[3] & (byte)64) == (1 << 6)){//Check if the correct function was called
+                        Toast.makeText(getBaseContext(), "Reset Done",Toast.LENGTH_SHORT).show();
+                    }
+                    //nfcv.close();
+                } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                }
+
 
 
                 int periodInMs = (int)(period * 60 * 1000); //period in ms
@@ -147,7 +163,11 @@ public class settings extends AppCompatActivity {
 
                 nfcv.transceive(command);
 
-
+                //Check if sampling is launched
+                byte samplingIsLaunched[] = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
+                if((samplingIsLaunched[3] & (byte)16)== (1 << 4)){
+                    Toast.makeText(getBaseContext(), "Sampling is launched",Toast.LENGTH_SHORT).show();
+                }
                 nfcv.close();
             } else{
 
@@ -171,7 +191,7 @@ public class settings extends AppCompatActivity {
         String tmp = editPeriod.getText().toString();
         if (!tmp.isEmpty()) period = Float.parseFloat(tmp);
 
-        if(period < 0.05){
+        if(period < 0.001){
             Toast.makeText(getBaseContext(), "invalid period, must be al least 0.05", Toast.LENGTH_SHORT).show();
             return;
         }
