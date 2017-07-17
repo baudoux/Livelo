@@ -1,6 +1,7 @@
 package com.livelo.livelo;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -227,47 +229,93 @@ public class menu extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            HttpURLConnection connection;
-            OutputStreamWriter request = null;
+            // ouvre la liste des logfiles pour les envoyer
+            String s = "";
+            JSONArray log_files = new JSONArray();
 
-            URL url = null;
-            String response = null;
-            String parameters = "hello";
-            try {
-                url = new URL("http://localhost/gcg/insert.php");
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoOutput(true);
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                connection.setRequestMethod("POST");
-
-                request = new OutputStreamWriter(connection.getOutputStream());
-                request.write(parameters);
-                request.flush();
-                request.close();
-                String line = "";
-                InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                BufferedReader reader = new BufferedReader(isr);
-                StringBuilder sb = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
+            File file = new File("log_files.json");
+            if(file.exists()) {
+                try {
+                    FileInputStream fileIn = openFileInput("log_files.json");
+                    InputStreamReader InputRead = new InputStreamReader(fileIn);
+                    char[] inputBuffer = new char[100];
+                    int charRead;
+                    while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                        // char to string conversion
+                        String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                        s += readstring;
+                        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+                        log_files = new JSONArray(s);
+                    }
+                    InputRead.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                // Response from server after login process will be stored in response variable.
-                response = sb.toString();
-                // You can perform UI operations here
-                Toast.makeText(getApplicationContext(), "response: " + response, Toast.LENGTH_SHORT).show();
+            }// TODO else?
 
-                isr.close();
-                reader.close();
+            for (int n = 0; n < log_files.length(); n++) {
+                //String logFile = log_files.get(n).toString();
+                String logFile = "aésldkfjéldsf";
+                URL url = null;
+                HttpURLConnection connection;
+                OutputStreamWriter request = null;
+                String response = null;
+                try {
+                    FileInputStream fileIn = openFileInput(logFile);
+                    InputStreamReader InputRead = new InputStreamReader(fileIn);
 
-            } catch (IOException e) {
-                // Error
+                    char[] inputBuffer = new char[100];
+                    String s2 = "";
+                    int charRead;
+
+                    while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                        // char to string conversion
+                        String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                        s2 += readstring;
+                        Toast.makeText(getApplicationContext(), s2, Toast.LENGTH_LONG).show();
+                    }
+                    InputRead.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String parameters = "hello";
+                try {
+                    url = new URL(" http://posttestserver.com/post.php?dir=livelo");
+                    connection = (HttpURLConnection) url.openConnection();
+                    //connection.setDoOutput(true); // on sait pas a quoi ça sert , false default
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                    connection.setRequestMethod("POST");
+
+                    request = new OutputStreamWriter(connection.getOutputStream());
+                    request.write(parameters);
+                    request.flush();
+                    request.close();
+                    String line = "";
+                    InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+                    BufferedReader reader = new BufferedReader(isr);
+                    StringBuilder sb = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line + "\n");
+                    }
+                    // Response from server after login process will be stored in response variable.
+                    response = sb.toString();
+                    // You can perform UI operations here
+
+                    isr.close();
+                    reader.close();
+
+                } catch (IOException e) {
+                    // Error
+                }
             }
             return "executed";
         }
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(), "executed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
             // might want to change "executed" for the returned string passed
             // into onPostExecute() but that is up to you
         }

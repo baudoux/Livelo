@@ -54,11 +54,15 @@ public class collect_data extends AppCompatActivity {
     private StringBuilder id_string;
     public static String dataForMail;
 
+    byte[] c; // count, number of samples
+    byte[] p; // sampling period
+    int count = 0;
+    float periodInMin = 0;
+
     public JSONArray data_array;
 
     byte[] id;
     private int k = 0;
-    byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
     byte readCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
     byte[] buffer;// buffer containing the data
     Tag detectedTag;
@@ -144,20 +148,12 @@ public class collect_data extends AppCompatActivity {
                         }
 
 
-                        if (k < 1) {
+                        if (k < 1) {// number of bolcks to read - 1
                             refresh();
                         }
                         else {
                             readOneBlock();
 
-                            //////////////////////Reset the device /////////////////////
-                            try{
-                                nfcv.connect();
-                                nfcv.transceive(resetCommand);
-                                nfcv.close();
-                            } catch (IOException e) {
-                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
-                            }
 
                             long now = System.currentTimeMillis()/1000;
                             String now_string =   new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(now*1000));
@@ -166,17 +162,25 @@ public class collect_data extends AppCompatActivity {
                             JSONObject log_json = new JSONObject();
                             try {
                                 log_json.put("id", id_string);
-                                log_json.put("date", now);
-                                // json_log.put("period", );
-                                // json_log.put("number of samples", );
+                                // TODO ajouter la date du début si on peut la stocker dans le sensor sinon on la met en ligne quand on start le sensor
+                                log_json.put("start", now);
+                                log_json.put("stop", now);
+                                // TODO ajouter le nomber de sampling ici
+                                log_json.put("num", count);
+                                log_json.put("period", periodInMin);
+                                // TODO lecture de calibration stockée dans le sensor
+                                log_json.put("cal_start", 1234);
+                                // TODO lecture de calibration au moment de la collecte
+                                log_json.put("cal_stop", 2345);
                                 log_json.put("data", data_array);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
                             // store it in a file //////////////////////////////////////////////////
+                            fileName = now_string + "_" +id_string.toString() + ".json";
                             try {
-                                fileout = openFileOutput(now_string + "_" +id_string.toString() + ".json", MODE_PRIVATE);
+                                fileout = openFileOutput(fileName, MODE_PRIVATE);
                                 outputWriter = new OutputStreamWriter(fileout);
                                 outputWriter.write(log_json.toString());
                                 outputWriter.close();
@@ -232,7 +236,7 @@ public class collect_data extends AppCompatActivity {
 
                             /////////////////////keep the name of the file in files_names.txt ///////////////////////////
                             try {
-                                log_files.put(now_string + "_" + id_string.toString() + ".json");
+                                log_files.put(fileName);
                                 fileout = openFileOutput("log_files.json", MODE_PRIVATE);
                                 outputWriter = new OutputStreamWriter(fileout);
                                 outputWriter.write(log_files.toString());
@@ -240,8 +244,6 @@ public class collect_data extends AppCompatActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Sensor.logFile = now_string + "_" + id_string.toString() + ".json";
-
 
                             //__________________________________________________________________________________________________
                             try{
@@ -285,6 +287,29 @@ public class collect_data extends AppCompatActivity {
                 for (byte b : id) {
                     id_string.append(String.format("%02X", b));
                 }
+
+                ///////////////////////////how many samples since last time ?
+                try{
+                    //nfcv.connect();
+                    c = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06}); //read block 641h from RAM
+                    //nfcv.close();
+                } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                }
+                count = ((c[6] & 0xff) << 8) | (c[5] & 0xff);//Warning: order of bytes inversed!
+                count = (count >> 1) - 1;
+                if(count < 0)
+                    count = 0;
+
+
+                ///////////////////////What is the sampling frequency ?
+                try{
+                    p = nfcv.transceive(new byte[]{0x00, 0x20, 0x03}); //read block 3 from FRAM
+                } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                }
+                int period = ((p[4] & 0xff) << 24) | ((p[3] & 0xff) << 16) | ((p[2] & 0xff) << 8) | (p[1] & 0xff);//Warning: order of bytes inversed!
+                periodInMin = (float)period / 60000; //period in minutes
 
                 // TODO find sensor by id
                 File file = new File(id_string.toString() + ".json");
@@ -351,7 +376,6 @@ public class collect_data extends AppCompatActivity {
 
                 fileName = now_string + "_" +id_string.toString() + ".txt";
 
-                // TODO for ou while
                 byte index[];
                 index = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06});
 
