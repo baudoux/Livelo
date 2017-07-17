@@ -5,14 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.opengl.Visibility;
@@ -143,6 +135,8 @@ public class menu extends AppCompatActivity {
     }
 
     public void send_data(View view) {
+        new LongOperation().execute("");
+
         Toast.makeText(getApplicationContext(), "sending data", Toast.LENGTH_SHORT).show();
 
         //new LongOperation().execute("");
@@ -229,43 +223,59 @@ public class menu extends AppCompatActivity {
         }
     }*/
 
-    private class MyAsyncTask extends AsyncTask<String, Integer, Double>{
+    private class LongOperation extends AsyncTask<String, Void, String> {
 
         @Override
-        protected Double doInBackground(String... params) {
-            // TODO Auto-generated method stub
-            postData(params[0]);
-            return null;
-        }
+        protected String doInBackground(String... params) {
+            HttpURLConnection connection;
+            OutputStreamWriter request = null;
 
-        protected void onPostExecute(Double result){
-            // pb.setVisibility(View.GONE);
-            Toast.makeText(getApplicationContext(), "command sent", Toast.LENGTH_LONG).show();
-        }
-        protected void onProgressUpdate(Integer... progress){
-            // pb.setProgress(progress[0]);
-        }
-
-        public void postData(String valueIWantToSend) {
-            // Create a new HttpClient and Post Header
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost("http://somewebsite.com/receiver.php");
-
+            URL url = null;
+            String response = null;
+            String parameters = "hello";
             try {
-                // Add your data
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                nameValuePairs.add(new BasicNameValuePair("myHttpData", valueIWantToSend));
-                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                url = new URL("http://localhost/gcg/insert.php");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                connection.setRequestMethod("POST");
 
-                // Execute HTTP Post Request
-                HttpResponse response = httpclient.execute(httppost);
+                request = new OutputStreamWriter(connection.getOutputStream());
+                request.write(parameters);
+                request.flush();
+                request.close();
+                String line = "";
+                InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+                BufferedReader reader = new BufferedReader(isr);
+                StringBuilder sb = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                // Response from server after login process will be stored in response variable.
+                response = sb.toString();
+                // You can perform UI operations here
+                Toast.makeText(getApplicationContext(), "response: " + response, Toast.LENGTH_SHORT).show();
 
-            } catch (ClientProtocolException e) {
-                // TODO Auto-generated catch block
+                isr.close();
+                reader.close();
+
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                // Error
             }
+            return "executed";
         }
 
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), "executed", Toast.LENGTH_SHORT).show();
+            // might want to change "executed" for the returned string passed
+            // into onPostExecute() but that is up to you
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
     }
 }
