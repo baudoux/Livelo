@@ -132,7 +132,7 @@ public class settings extends AppCompatActivity {
 
                 nfcv.transceive(command1);
 
-                //Start pressure sampling every periodInMs msecs
+                //Start pressure every periodInMs msecs
                 byte command[] = new byte[]{
                         0x00,
                         0x21,

@@ -1,5 +1,31 @@
 package com.livelo.livelo;
 
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import android.app.Activity;
+import android.opengl.Visibility;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -21,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -118,7 +145,7 @@ public class menu extends AppCompatActivity {
     public void send_data(View view) {
         Toast.makeText(getApplicationContext(), "sending data", Toast.LENGTH_SHORT).show();
 
-        send_data();
+        //new LongOperation().execute("");
         return;
 
         // TODO if uploading succeed
@@ -158,129 +185,87 @@ public class menu extends AppCompatActivity {
         System.exit(1);
     }
 
-    public void send_data() {
-        // get the string of the json
-        String s = "";
-        try {
-            FileInputStream fileIn = openFileInput(Sensor.logFile);
-            InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-            char[] inputBuffer = new char[100];
-            int charRead;
-
-            while ((charRead = InputRead.read(inputBuffer)) > 0) {
-                // char to string conversion
-                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                s += readstring;
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            }
-            InputRead.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Map<String, String> postData = new HashMap<>();
-        try {
-            postData = new JSONObject(s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        postData.put("anotherParam", anotherParam);
-        HttpPostAsyncTask task = new HttpPostAsyncTask(postData);
-        task.execute(baseUrl + "/some/path/goes/here");
-
-        try {
-            String urlParameters = "Hello";
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            //String request        = "http://192.168.43.176:10101/ThinkEE/http/livelo";
-            String request = "http://httpbin.org/post";
-            URL url = new URL(request);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            conn.connect();
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getBaseContext(), "pas de connexion", Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-
-    public class HttpPostAsyncTask extends AsyncTask<String, Void, Void> {
-
-        // This is the JSON body of the post
-        JSONObject postData;
-
-        // This is a constructor that allows you to pass in the JSON body
-        public HttpPostAsyncTask(Map<String, String> postData) {
-            if (postData != null) {
-                this.postData = new JSONObject(postData);
-            }
-        }
-
-        // This is a function that we are overriding from AsyncTask. It takes Strings as parameters because that is what we defined for the parameters of our async task
+    /*private class LongOperation extends AsyncTask<String, Void, String> {
+/*
         @Override
-        protected Void doInBackground(String... params) {
+        protected String doInBackground(String... params) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost("http://localhost/gcg/insert.php");
 
             try {
-                // This is getting the url from the string we passed in
-                URL url = new URL(params[0]);
+                // Add your data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                nameValuePairs.add(new BasicNameValuePair("id", "12345"));
+                nameValuePairs.add(new BasicNameValuePair("stringdata", "AndDev is Cool!"));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-                // Create the urlConnection
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                // Execute HTTP Post Request
+                HttpResponse response = httpclient.execute(httppost);
 
-
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-
-                urlConnection.setRequestMethod("POST");
-
-
-                // OPTIONAL - Sets an authorization header
-                urlConnection.setRequestProperty("Authorization", "someAuthString");
-
-                // Send the post body
-                if (this.postData != null) {
-                    OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
-                    writer.write(postData.toString());
-                    writer.flush();
-                }
-
-                int statusCode = urlConnection.getResponseCode();
-
-                if (statusCode == 200) {
-
-                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-
-                    String response = convertInputStreamToString(inputStream);
-
-                    // From here you can convert the string to JSON with whatever JSON parser you like to use
-
-                    // After converting the string to JSON, I call my custom callback. You can follow this process too, or you can implement the onPostExecute(Result) method
-
-                } else {
-                    // Status code is not 200
-                    // Do something to handle the error
-                }
-
-            } catch (Exception e) {
-                Log.d(TAG, e.getLocalizedMessage());
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
             }
+            return "Executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // TextView txt = (TextView) findViewById(R.id.output);
+            // txt.setText("Executed"); // txt.setText(result);
+            // Toast.makeText(getApplicationContext(),
+            // et.getText().toString(),Toast.LENGTH_SHORT).show();
+            // might want to change "executed" for the returned string passed
+            // into onPostExecute() but that is upto you
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }*/
+
+    private class MyAsyncTask extends AsyncTask<String, Integer, Double>{
+
+        @Override
+        protected Double doInBackground(String... params) {
+            // TODO Auto-generated method stub
+            postData(params[0]);
             return null;
         }
+
+        protected void onPostExecute(Double result){
+            // pb.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "command sent", Toast.LENGTH_LONG).show();
+        }
+        protected void onProgressUpdate(Integer... progress){
+            // pb.setProgress(progress[0]);
+        }
+
+        public void postData(String valueIWantToSend) {
+            // Create a new HttpClient and Post Header
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost("http://somewebsite.com/receiver.php");
+
+            try {
+                // Add your data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("myHttpData", valueIWantToSend));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                // Execute HTTP Post Request
+                HttpResponse response = httpclient.execute(httppost);
+
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+            }
+        }
+
     }
 }
