@@ -20,5 +20,7 @@ public class Sensor {
     public static String filesNames = "files_names.txt";
     public static String sensorsId = "id.txt";
     public static String logFile = "";
+
+    public static int NbOfSamplesGlobal = 0;
 }
 

@@ -94,9 +94,12 @@ public class reset extends AppCompatActivity {
                 nfcv.transceive(command);
 
                 ///////Check if reset is done///////
-                byte resetIsDone[] = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
-                if((resetIsDone[0] & (byte)-128)==0){
+                byte[] resetIsDone;
+                resetIsDone = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
+                if((resetIsDone[3] & (byte)64) == (1 << 6)){//Check if the correct function was called
                     Toast.makeText(getBaseContext(), "Reset Done",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getBaseContext(), "Error: Reset not done",Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -107,6 +110,7 @@ public class reset extends AppCompatActivity {
 
         } catch (IOException e) {
             tv_reset.append("Error");
+            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
         }
 
 //TODO: Add a toast when the reset is done ?

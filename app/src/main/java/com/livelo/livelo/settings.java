@@ -111,6 +111,8 @@ public class settings extends AppCompatActivity {
                     resetIsDone = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
                     if((resetIsDone[3] & (byte)64) == (1 << 6)){//Check if the correct function was called
                         Toast.makeText(getBaseContext(), "Reset Done",Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getBaseContext(), "Error: Reset not done",Toast.LENGTH_SHORT).show();
                     }
                     //nfcv.close();
                 } catch (IOException e) {
