@@ -59,6 +59,8 @@ public class collect_data extends AppCompatActivity {
     int count = 0; //number of samples
     float periodInMin = 0; //period of sampling in minutes
 
+
+    JSONObject sensor;
     public JSONArray data_array;
 
     byte[] id;
@@ -85,7 +87,7 @@ public class collect_data extends AppCompatActivity {
         tv_progress = (TextView) findViewById(R.id.tv_progress);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar4 = (ProgressBar) findViewById(R.id.progressBar4);
-        progressBar.setMax(31);
+        progressBar.setMax(100);
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         data.setText("");
@@ -144,12 +146,14 @@ public class collect_data extends AppCompatActivity {
                             nfcv.transceive(readCommand);
                             nfcv.close();
                         } catch (IOException e) {
-                            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Error1", Toast.LENGTH_SHORT).show();
                         }
 
-
-                        if (k < 1) {// number of bolcks to read - 1
+                        // number of bolcks (2048B) to read - 1, such that it only reads the nb of new samples
+                        int nbBlocksToRead = 20; //Sensor.NbOfSamplesGlobal/1024+1;
+                        if (k < nbBlocksToRead) {
                             refresh();
+
                         } else {
                             readOneBlock();
 
@@ -248,13 +252,13 @@ public class collect_data extends AppCompatActivity {
                             try {
                                 nfcv.close();
                             } catch (IOException e) {
-                                Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getBaseContext(), "Error2", Toast.LENGTH_SHORT).show();
                             }
                             Toast.makeText(getApplicationContext(), "done", Toast.LENGTH_LONG).show();
 
                         }
-                        progressBar.setProgress(k);
-                        tv_progress.setText("loading : " + String.valueOf(round((float) k / 31 * 100)) + "%");
+                        progressBar.setProgress(k / nbBlocksToRead * 100);
+                        tv_progress.setText("loading : " + String.valueOf(round((float) k / nbBlocksToRead * 100)) + "%");
 
                     }
                 });
@@ -314,45 +318,15 @@ public class collect_data extends AppCompatActivity {
                             s += readstring;
                             Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
                         }
+                        sensor = new JSONObject(s);// mettre la string en argument
                         InputRead.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    // create the object
-                    // extract data
 
-                    try {
-                        JSONObject sensor = new JSONObject(s);// mettre la string en argument
-                        tv.setText("Sensor detected:"
-                                + "\nid : " + sensor.getString("id")
-                                + "\nName : " + sensor.getString("first_name")
-                                + "\nLast name : " + sensor.getString("last_name")
-                                + "\nCompany : " + sensor.getString("company")
-                                + "\nLocation : " + sensor.getString("location")
-                                + "\nType : " + sensor.getString("type")
-                                + "\nComment : " + sensor.getString("comment")
-                                + "\nOpen source : " + sensor.getBoolean("open_source")
-                                + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time") * 1000))
-                                + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time") * 1000))
-                                + "\n");
-                        long now = System.currentTimeMillis() / 1000;
-                        sensor.put("last_collect_time", now);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    ////////////////////Display sensor information///////////////
+                    displayInformation();
 
-
-                    String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
-                    if (Sensor.last_collect_time != 0) {
-                        Date last_collect = new Date(Sensor.last_collect_time);
-                        fDateLastCollect = new SimpleDateFormat("dd-MM-yyyy").format(last_collect);
-                    }
-
-                    String fDateStartTime = "never"; // shouldn't append if an id is an id is assigned
-                    if (Sensor.start_time != 0) {
-                        Date start_time = new Date(Sensor.start_time);
-                        fDateStartTime = new SimpleDateFormat("dd-MM-yyyy").format(start_time);
-                    }
                 }
                 // get now for file name
                 Calendar now = Calendar.getInstance();
@@ -372,11 +346,15 @@ public class collect_data extends AppCompatActivity {
 
                 //////////////////// start the reading function//////////////////////
                 refresh();
+
+
+
+
                 nfcv.close();
             } else
                 Toast.makeText(getBaseContext(), "Not connected to the tag", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Error3", Toast.LENGTH_SHORT).show();
         }
         tv_progress.setText("connection started");
 
@@ -413,7 +391,8 @@ public class collect_data extends AppCompatActivity {
                 try {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x06});//Read single block
                 } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Error4", Toast.LENGTH_SHORT).show();
+
                 }
                 for (int l = 0; l < buffer.length; l++) {
                     if (l % 2 == 1) {
@@ -440,7 +419,7 @@ public class collect_data extends AppCompatActivity {
                 try {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x07});
                 } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Error5", Toast.LENGTH_SHORT).show();
                 }
                 for (int l = 0; l < buffer.length; l++) {
                     if (l % 2 == 1) {
@@ -462,7 +441,7 @@ public class collect_data extends AppCompatActivity {
             }
             nfcv.close();
         } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Error6", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -472,7 +451,7 @@ public class collect_data extends AppCompatActivity {
         try {
             p = nfcv.transceive(new byte[]{0x00, 0x20, 0x03}); //read block 3 from FRAM
         } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Error7", Toast.LENGTH_SHORT).show();
         }
         int period = ((p[4] & 0xff) << 24) | ((p[3] & 0xff) << 16) | ((p[2] & 0xff) << 8) | (p[1] & 0xff);//Warning: order of bytes inversed!
         periodInMin = (float) period / 60000; //period in minutes
@@ -485,13 +464,49 @@ public class collect_data extends AppCompatActivity {
             c = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06}); //read block 641h from RAM
             //nfcv.close();
         } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Error8", Toast.LENGTH_SHORT).show();
         }
         count = ((c[6] & 0xff) << 8) | (c[5] & 0xff);//Warning: order of bytes inversed!
         count = (count >> 1) - 1;
         if (count < 0)
             count = 0;
+
+        Sensor.NbOfSamplesGlobal = count; //Stocks the nb of samples
         return;
+    }
+
+    public void displayInformation(){
+        try {
+            tv.setText("Sensor detected:"
+                    + "\nid : " + sensor.getString("id")
+                    + "\nName : " + sensor.getString("first_name")
+                    + "\nLast name : " + sensor.getString("last_name")
+                    + "\nCompany : " + sensor.getString("company")
+                    + "\nLocation : " + sensor.getString("location")
+                    + "\nType : " + sensor.getString("type")
+                    + "\nComment : " + sensor.getString("comment")
+                    + "\nOpen source : " + sensor.getBoolean("open_source")
+                    + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time") * 1000))
+                    + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time") * 1000))
+                    + "\n");
+            long now = System.currentTimeMillis() / 1000;
+            sensor.put("last_collect_time", now);
+
+            //Check last collect time
+            String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
+            if (Sensor.last_collect_time != 0) {
+                Date last_collect = new Date(Sensor.last_collect_time);
+                fDateLastCollect = new SimpleDateFormat("dd-MM-yyyy").format(last_collect);
+            }
+
+            String fDateStartTime = "never"; // shouldn't append if an id is an id is assigned
+            if (Sensor.start_time != 0) {
+                Date start_time = new Date(Sensor.start_time);
+                fDateStartTime = new SimpleDateFormat("dd-MM-yyyy").format(start_time);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
