@@ -56,14 +56,14 @@ public class collect_data extends AppCompatActivity {
 
     byte[] c; // count, number of samples
     byte[] p; // sampling period
-    int count = 0;
-    float periodInMin = 0;
+    int count = 0; //number of samples
+    float periodInMin = 0; //period of sampling in minutes
 
     public JSONArray data_array;
 
     byte[] id;
     private int k = 0;
-    byte readCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
+    byte readCommand[] = new byte[]{0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
     byte[] buffer;// buffer containing the data
     Tag detectedTag;
     NfcV nfcv;
@@ -71,8 +71,6 @@ public class collect_data extends AppCompatActivity {
     String fileName;
 
     private Intent intentNFC;
-
-
 
 
     @Override
@@ -91,7 +89,6 @@ public class collect_data extends AppCompatActivity {
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         data.setText("");
-
 
 
         mPendingIntent = PendingIntent.getActivity(this, 0,
@@ -124,13 +121,16 @@ public class collect_data extends AppCompatActivity {
         }
     }
 
-    private void refresh(){
+    private void refresh() {
         final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int timeRead = 100;    //in milissegunds
-                try{Thread.sleep(timeRead);}catch (Exception e) {}
+                try {
+                    Thread.sleep(timeRead);
+                } catch (Exception e) {
+                }
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -139,24 +139,23 @@ public class collect_data extends AppCompatActivity {
 
                         k++;
 
-                        try{
+                        try {
                             nfcv.connect();
                             nfcv.transceive(readCommand);
                             nfcv.close();
                         } catch (IOException e) {
-                            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
                         }
 
 
                         if (k < 1) {// number of bolcks to read - 1
                             refresh();
-                        }
-                        else {
+                        } else {
                             readOneBlock();
 
 
-                            long now = System.currentTimeMillis()/1000;
-                            String now_string =   new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(now*1000));
+                            long now = System.currentTimeMillis() / 1000;
+                            String now_string = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(now * 1000));
 
                             // create the log object////////////////////////////////////////////////
                             JSONObject log_json = new JSONObject();
@@ -178,7 +177,7 @@ public class collect_data extends AppCompatActivity {
                             }
 
                             // store it in a file //////////////////////////////////////////////////
-                            fileName = now_string + "_" +id_string.toString() + ".json";
+                            fileName = now_string + "_" + id_string.toString() + ".json";
                             try {
                                 fileout = openFileOutput(fileName, MODE_PRIVATE);
                                 outputWriter = new OutputStreamWriter(fileout);
@@ -215,7 +214,7 @@ public class collect_data extends AppCompatActivity {
                             JSONArray log_files = new JSONArray();
 
                             File file = new File("log_files.json");
-                            if(file.exists()) {
+                            if (file.exists()) {
                                 try {
                                     FileInputStream fileIn = openFileInput("log_files.json");
                                     InputStreamReader InputRead = new InputStreamReader(fileIn);
@@ -246,10 +245,10 @@ public class collect_data extends AppCompatActivity {
                             }
 
                             //__________________________________________________________________________________________________
-                            try{
+                            try {
                                 nfcv.close();
                             } catch (IOException e) {
-                                Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
                             }
                             Toast.makeText(getApplicationContext(), "done", Toast.LENGTH_LONG).show();
 
@@ -289,33 +288,19 @@ public class collect_data extends AppCompatActivity {
                 }
 
                 ///////////////////////////how many samples since last time ?
-                try{
-                    //nfcv.connect();
-                    c = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06}); //read block 641h from RAM
-                    //nfcv.close();
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
-                }
-                count = ((c[6] & 0xff) << 8) | (c[5] & 0xff);//Warning: order of bytes inversed!
-                count = (count >> 1) - 1;
-                if(count < 0)
-                    count = 0;
+                readNbofSamples();
 
 
                 ///////////////////////What is the sampling frequency ?
-                try{
-                    p = nfcv.transceive(new byte[]{0x00, 0x20, 0x03}); //read block 3 from FRAM
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
-                }
-                int period = ((p[4] & 0xff) << 24) | ((p[3] & 0xff) << 16) | ((p[2] & 0xff) << 8) | (p[1] & 0xff);//Warning: order of bytes inversed!
-                periodInMin = (float)period / 60000; //period in minutes
+                readSamplingFreq();
+
+
 
                 // TODO find sensor by id
                 File file = new File(id_string.toString() + ".json");
-                if(!file.exists()){
+                if (!file.exists()) {
                     tv.setText("Sensor detected: unknown sensor");
-                }else {
+                } else {
                     // read the json
                     String s = "";
                     try {
@@ -339,23 +324,22 @@ public class collect_data extends AppCompatActivity {
                     try {
                         JSONObject sensor = new JSONObject(s);// mettre la string en argument
                         tv.setText("Sensor detected:"
-                                        + "\nid : " + sensor.getString("id")
-                                        + "\nName : " + sensor.getString("first_name")
-                                        + "\nLast name : " + sensor.getString("last_name")
-                                        + "\nCompany : " + sensor.getString("company")
-                                        + "\nLocation : " + sensor.getString("location")
-                                        + "\nType : " + sensor.getString("type")
-                                        + "\nComment : " + sensor.getString("comment")
-                                        + "\nOpen source : " + sensor.getBoolean("open_source")
-                                        + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time")*1000))
-                                        + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time")*1000))
-                                        + "\n");
-                        long now = System.currentTimeMillis()/1000;
+                                + "\nid : " + sensor.getString("id")
+                                + "\nName : " + sensor.getString("first_name")
+                                + "\nLast name : " + sensor.getString("last_name")
+                                + "\nCompany : " + sensor.getString("company")
+                                + "\nLocation : " + sensor.getString("location")
+                                + "\nType : " + sensor.getString("type")
+                                + "\nComment : " + sensor.getString("comment")
+                                + "\nOpen source : " + sensor.getBoolean("open_source")
+                                + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time") * 1000))
+                                + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time") * 1000))
+                                + "\n");
+                        long now = System.currentTimeMillis() / 1000;
                         sensor.put("last_collect_time", now);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
 
 
                     String fDateLastCollect = "never"; // shouldn't append if an id is an id is assigned
@@ -374,7 +358,7 @@ public class collect_data extends AppCompatActivity {
                 Calendar now = Calendar.getInstance();
                 String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
 
-                fileName = now_string + "_" +id_string.toString() + ".txt";
+                fileName = now_string + "_" + id_string.toString() + ".txt";
 
                 byte index[];
                 index = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06});
@@ -384,13 +368,15 @@ public class collect_data extends AppCompatActivity {
 
                 // ask for the first block
                 nfcv.transceive(readCommand);
-                // start the reading function;
+
+
+                //////////////////// start the reading function//////////////////////
                 refresh();
                 nfcv.close();
             } else
-                Toast.makeText(getBaseContext(), "Not connected to the tag",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Not connected to the tag", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
         }
         tv_progress.setText("connection started");
 
@@ -400,7 +386,8 @@ public class collect_data extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        if (myNfcAdapter != null)
+            myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
     }
 
     @Override
@@ -415,28 +402,28 @@ public class collect_data extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void readOneBlock(){
+    public void readOneBlock() {
         byte i = 0x44; //Start block of data
         int j = 0;
         //////////////////Start transfer/////////////////////
         //First blocks from 0x644 to 0x6FF
-        try{
+        try {
             nfcv.connect();
             while (j < 188) {
-                try{
+                try {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x06});//Read single block
                 } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
                 }
-            for(int l = 0 ; l < buffer.length; l++){
-                    if(l%2 == 1){
-                        Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
-                        Log.i(String.format("%1$d",blockCount),String.format("%8s", Integer.toBinaryString(buffer[l+1] & 0xFF)).replace(' ', '0'));
-                        int  currentData = ((buffer[l] & 0xff) << 8) | (buffer[l+1] & 0xff);
+                for (int l = 0; l < buffer.length; l++) {
+                    if (l % 2 == 1) {
+                        Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
+                        Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
+                        int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
                         data_array.put(currentData);
                         //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
-                            outputWriter.write(String.format("%1$d",currentData) + "\n");
+                            outputWriter.write(String.format("%1$d", currentData) + "\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -450,12 +437,12 @@ public class collect_data extends AppCompatActivity {
             //Second blocks
             j = 0;
             while (j < 68) {
-                try{
+                try {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x07});
                 } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
                 }
-            for(int l = 0 ; l < buffer.length; l++) {
+                for (int l = 0; l < buffer.length; l++) {
                     if (l % 2 == 1) {
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
@@ -463,7 +450,7 @@ public class collect_data extends AppCompatActivity {
                         data_array.put(currentData);
                         //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
-                            outputWriter.write(String.format("%1$d",currentData) + "\n");
+                            outputWriter.write(String.format("%1$d", currentData) + "\n");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -474,12 +461,38 @@ public class collect_data extends AppCompatActivity {
                 blockCount++;
             }
             nfcv.close();
-        }catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
         }
 
     }
 
-}
 
+    public void readSamplingFreq() {
+        try {
+            p = nfcv.transceive(new byte[]{0x00, 0x20, 0x03}); //read block 3 from FRAM
+        } catch (IOException e) {
+            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+        }
+        int period = ((p[4] & 0xff) << 24) | ((p[3] & 0xff) << 16) | ((p[2] & 0xff) << 8) | (p[1] & 0xff);//Warning: order of bytes inversed!
+        periodInMin = (float) period / 60000; //period in minutes
+        return;
+    }
+
+    public void readNbofSamples(){
+        try {
+            //nfcv.connect();
+            c = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06}); //read block 641h from RAM
+            //nfcv.close();
+        } catch (IOException e) {
+            Toast.makeText(getBaseContext(), "Error", Toast.LENGTH_SHORT).show();
+        }
+        count = ((c[6] & 0xff) << 8) | (c[5] & 0xff);//Warning: order of bytes inversed!
+        count = (count >> 1) - 1;
+        if (count < 0)
+            count = 0;
+        return;
+    }
+
+}
 
