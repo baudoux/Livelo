@@ -1,6 +1,8 @@
 package com.livelo.livelo;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -13,6 +15,7 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -147,6 +150,7 @@ public class collect_data extends AppCompatActivity {
                             nfcv.close();
                         } catch (IOException e) {
                             Toast.makeText(getBaseContext(), "Error1", Toast.LENGTH_SHORT).show();
+                            return;
                         }
 
                         // number of bolcks (2048B) to read - 1, such that it only reads the nb of new samples
@@ -355,6 +359,8 @@ public class collect_data extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), "Not connected to the tag", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Error3", Toast.LENGTH_SHORT).show();
+            showDisconnectDialog();//The user fucked up and has to reset
+            return;
         }
         tv_progress.setText("connection started");
 
@@ -392,6 +398,8 @@ public class collect_data extends AppCompatActivity {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x06});//Read single block
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Error4", Toast.LENGTH_SHORT).show();
+                    showDisconnectDialog();//The user fucked up and has to reset
+                    break;
 
                 }
                 for (int l = 0; l < buffer.length; l++) {
@@ -420,6 +428,8 @@ public class collect_data extends AppCompatActivity {
                     buffer = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, i, 0x07});
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Error5", Toast.LENGTH_SHORT).show();
+                    showDisconnectDialog();//The user fucked up and has to reset
+                    break;
                 }
                 for (int l = 0; l < buffer.length; l++) {
                     if (l % 2 == 1) {
@@ -442,6 +452,7 @@ public class collect_data extends AppCompatActivity {
             nfcv.close();
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Error6", Toast.LENGTH_SHORT).show();
+            return;
         }
 
     }
@@ -471,7 +482,9 @@ public class collect_data extends AppCompatActivity {
         if (count < 0)
             count = 0;
 
-        Sensor.NbOfSamplesGlobal = count; //Stocks the nb of samples
+        if(count != 0)
+            Sensor.NbOfSamplesGlobal = count; //Stocks the nb of samples
+
         return;
     }
 
@@ -507,6 +520,23 @@ public class collect_data extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void showDisconnectDialog() {
+
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setTitle("Warning");
+        builder.setMessage("The device was disconnected. You need to reset the device again to collect the data");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(collect_data.this, reset.class);
+                startActivity(intent);
+            }
+        });
+        android.support.v7.app.AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }
