@@ -56,7 +56,6 @@ public class new_sensor extends AppCompatActivity {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
 
-    byte[] id = {1,2,3,4,5,6,7,8,9,0};
     StringBuilder idString = new StringBuilder();
 
     private EditText editName;
@@ -73,6 +72,21 @@ public class new_sensor extends AppCompatActivity {
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
 
+    public static String first_name = "";
+    public static String last_name = "";
+    public static String company = "";
+    public static String type = "";
+    public static String location = "";
+    public static String comment = "";
+    public static int sampling_period = 0;
+    public static byte id[];
+    public static boolean open_source = true;
+    public static long start_time = 0;
+    public static long last_collect_time = 0;
+
+    public static String filesNames = "files_names.txt";
+    public static String sensorsId = "id.txt";
+    public static String logFile = "";
 
 
 
@@ -212,14 +226,13 @@ public class new_sensor extends AppCompatActivity {
 
         /////////////////////keep data in json object ///////////////////////////
 
-        Sensor.id = copyOf(id, id.length);
-        Sensor.first_name = editName.getText().toString();
-        Sensor.last_name = editLastName.getText().toString();
-        Sensor.company = editCompany.getText().toString();
-        Sensor.location = editLocation.getText().toString();
-        Sensor.type = editType.getText().toString();
-        Sensor.comment = editComment.getText().toString();
-        Sensor.open_source = checkBoxOpenSource.isChecked();
+        first_name = editName.getText().toString();
+        last_name = editLastName.getText().toString();
+        company = editCompany.getText().toString();
+        location = editLocation.getText().toString();
+        type = editType.getText().toString();
+        comment = editComment.getText().toString();
+        open_source = checkBoxOpenSource.isChecked();
 
         // TODO check for invalid inputs
         if (check_inputs()) {
@@ -234,13 +247,13 @@ public class new_sensor extends AppCompatActivity {
         JSONObject new_sensor_json = new JSONObject();
         try {
             new_sensor_json.put("id", id);
-            new_sensor_json.put("first_name", Sensor.first_name);
-            new_sensor_json.put("last_name", Sensor.last_name);
-            new_sensor_json.put("company", Sensor.company);
-            new_sensor_json.put("location", Sensor.location);
-            new_sensor_json.put("type", Sensor.type);
-            new_sensor_json.put("comment", Sensor.comment);
-            new_sensor_json.put("open_source", Sensor.open_source);
+            new_sensor_json.put("first_name", first_name);
+            new_sensor_json.put("last_name", last_name);
+            new_sensor_json.put("company", company);
+            new_sensor_json.put("location", location);
+            new_sensor_json.put("type", type);
+            new_sensor_json.put("comment", comment);
+            new_sensor_json.put("open_source", open_source);
             long now = System.currentTimeMillis()/1000;
             new_sensor_json.put("set_up_time", now);
         } catch (JSONException e) {
@@ -249,7 +262,7 @@ public class new_sensor extends AppCompatActivity {
 
         /////////////////////keep sensor in a file ///////////////////
         try {
-            fileout = openFileOutput("1234567890" + ".json", MODE_PRIVATE);
+            fileout = openFileOutput(idString + ".json", MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
             outputWriter.write(new_sensor_json.toString());
             outputWriter.close();
@@ -295,8 +308,8 @@ public class new_sensor extends AppCompatActivity {
 
 
         Calendar now = Calendar.getInstance();
-        Sensor.start_time = now.getTimeInMillis();
-        Sensor.last_collect_time = now.getTimeInMillis();
+        start_time = now.getTimeInMillis();
+        last_collect_time = now.getTimeInMillis();
 
         Toast toast = Toast.makeText(getApplicationContext(), "new sensor created", Toast.LENGTH_SHORT);
         toast.show();
