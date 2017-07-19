@@ -72,34 +72,33 @@ public class new_sensor extends AppCompatActivity {
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
 
+    public static byte id[];
+    public static boolean isNew = true;
+    public static float lat = 0;
+    public static float lng = 0;
+    public static float alt = 0;
+    public static String locality = "";
+    public static float battery = 0;
+    public static float depth = 0;
+    public static String company = "";
     public static String first_name = "";
     public static String last_name = "";
-    public static String company = "";
     public static String type = "";
-    public static String location = "";
     public static String comment = "";
-    public static int sampling_period = 0;
-    public static byte id[];
     public static boolean open_source = true;
-    public static long start_time = 0;
-    public static long last_collect_time = 0;
 
-    public static String filesNames = "files_names.txt";
-    public static String sensorsId = "id.txt";
-    public static String logFile = "";
-
-
+    NfcV nfcv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle("New sensor");
         setContentView(R.layout.activity_new_sensor);
+
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         editName = (EditText) findViewById(R.id.editName);
         editLastName = (EditText) findViewById(R.id.editLastName);
-
         editCompany = (EditText) findViewById(R.id.editCompany);
         editLocation = (EditText) findViewById(R.id.editLocation);
         editType = (EditText) findViewById(R.id.editType);
@@ -132,55 +131,39 @@ public class new_sensor extends AppCompatActivity {
 
 
     }
-    /*
-    public void get_id(View view) {
-        if (!myNfcAdapter.isEnabled()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "You should turn NFC on before", Toast.LENGTH_SHORT);
-            toast.show();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-                startActivity(intent);
-            }
-        } else{
-            Toast toast = Toast.makeText(getApplicationContext(), "scan the sensor", Toast.LENGTH_SHORT);
-            toast.show();
-        }
 
+    public void goto_add_new_sensor(View view) {
+        // pour debugger
+       // add_sensor();
+       // return;
+        /////////////////////
+
+
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
+                mTechLists);
+        ScrollNewSensor.setVisibility(View.INVISIBLE);
+        progressBarWaitNewSensor.setVisibility(View.VISIBLE);
+        tvWaitNewSensor.setVisibility(View.VISIBLE);
     }
-*/
+
     public void onNewIntent(Intent intent) {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        NfcV nfcv = NfcV.get(detectedTag);
-        try {
-            nfcv.connect();
-            if (nfcv.isConnected()) {
+        nfcv = NfcV.get(detectedTag);
 
-                id = nfcv.transceive(new byte[]{0x00, 0x2B});
-                nfcv.close();
-            }
-        } catch (IOException e) {
-        }
-
+        getId();
 
         /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
-
-        for (int i = 0; i < id.length; i++) {
-            String hex = Integer.toHexString(0xFF & id[i]);
-            if (hex.length() == 1) {
-                idString.append('0');
-            }
-            idString.append(hex);
-        }
 
         //TODO regarder si le sensor existe déjà
         File file = new File(idString.toString() + ".json");
         if(file.exists()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("sensor already exits");
-            builder.setMessage("Do you want to overwrite the previous one?");
+            builder.setTitle("This sensor is already registered");
+            builder.setMessage("Do you want to overwrite the previous data?");
+            //TODO: maybe display the sensor data here
             builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface dialog, int which) {
@@ -203,59 +186,73 @@ public class new_sensor extends AppCompatActivity {
 
             AlertDialog alert = builder.create();
             alert.show();
-            if (false) {
+        }
+        else{
+            add_sensor();
+        }
+    }
+
+    public void getId(){
+        try {
+            nfcv.connect();
+            if (nfcv.isConnected()) {
+                id = nfcv.transceive(new byte[]{0x00, 0x2B});
+                //TODO measure the battery level here
+                nfcv.close();
             }
+        } catch (IOException e) {
         }
 
-
+        for (int i = 0; i < id.length; i++) {
+            String hex = Integer.toHexString(0xFF & id[i]);
+            if (hex.length() == 1) {
+                idString.append('0');
+            }
+            idString.append(hex);
+        }
 
     }
 
-
     public void add_sensor() {
 
-
-        //try {
-        //    fileout = openFileOutput(Sensor.sensorsId, MODE_APPEND | MODE_PRIVATE);
-        //    outputWriter = new OutputStreamWriter(fileout);
-        //    outputWriter.write(idString.toString() + "\n");
-        //    outputWriter.close();
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
-
-        /////////////////////keep data in json object ///////////////////////////
+        /////////////////////charge data inputs ///////////////////////////
 
         first_name = editName.getText().toString();
         last_name = editLastName.getText().toString();
         company = editCompany.getText().toString();
-        location = editLocation.getText().toString();
+        //location = editLocation.getText().toString();
         type = editType.getText().toString();
         comment = editComment.getText().toString();
         open_source = checkBoxOpenSource.isChecked();
 
         // TODO check for invalid inputs
         if (check_inputs()) {
-            Toast toast = Toast.makeText(getApplicationContext(), "invalid input", Toast.LENGTH_SHORT);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "invalid input", Toast.LENGTH_SHORT).show();
             return;
         }
-
 
         /////////////////////keep data in json object ///////////////////////////
 
         JSONObject new_sensor_json = new JSONObject();
         try {
             new_sensor_json.put("id", id);
+            new_sensor_json.put("new", true);
+            new_sensor_json.put("lat", lat);
+            new_sensor_json.put("lng", lng);
+            new_sensor_json.put("alt", alt);
+            new_sensor_json.put("locality", locality);
+            new_sensor_json.put("sample_period", 0);
+            new_sensor_json.put("last_setup", System.currentTimeMillis()/1000);
+            new_sensor_json.put("last_collect", 0);
+            //TODO entrer le niveau de la batterie
+            new_sensor_json.put("battery", battery);
+            new_sensor_json.put("depth", depth);
+            new_sensor_json.put("company", company);
             new_sensor_json.put("first_name", first_name);
             new_sensor_json.put("last_name", last_name);
-            new_sensor_json.put("company", company);
-            new_sensor_json.put("location", location);
             new_sensor_json.put("type", type);
             new_sensor_json.put("comment", comment);
             new_sensor_json.put("open_source", open_source);
-            long now = System.currentTimeMillis()/1000;
-            new_sensor_json.put("set_up_time", now);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -269,95 +266,31 @@ public class new_sensor extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            FileInputStream fileIn = openFileInput("1234567890" + ".json");
-            InputStreamReader InputRead = new InputStreamReader(fileIn);
 
-            char[] inputBuffer = new char[100];
-            String s = "";
-            int charRead;
+ //       try {
+ //           FileInputStream fileIn = openFileInput(idString + ".json");
+ //           InputStreamReader InputRead = new InputStreamReader(fileIn);
+//
+ //           char[] inputBuffer = new char[100];
+ //           String s = "";
+ //           int charRead;
+//
+ //           while ((charRead = InputRead.read(inputBuffer)) > 0) {
+ //               // char to string conversion
+ //               String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+ //               s += readstring;
+ //               Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+ //           }
+ //           InputRead.close();
+ //       } catch (Exception e) {
+ //           e.printStackTrace();
+ //       }
 
-            while ((charRead = InputRead.read(inputBuffer)) > 0) {
-                // char to string conversion
-                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                s += readstring;
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            }
-            InputRead.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
-        //try {
-        //    fileout = openFileOutput(idString.toString() + ".txt", MODE_PRIVATE);
-        //    outputWriter = new OutputStreamWriter(fileout);
-        //    outputWriter.write(Sensor.first_name + "\n");
-        //    outputWriter.write(Sensor.last_name + "\n");
-        //    outputWriter.write(Sensor.company + "\n");
-        //    outputWriter.write(Sensor.location + "\n");
-        //    outputWriter.write(Sensor.type + "\n");
-        //    outputWriter.write(Sensor.comment + "\n");
-        //    outputWriter.write(Sensor.open_source + "\n");
-        //    outputWriter.close();
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
-
-
-
-        Calendar now = Calendar.getInstance();
-        start_time = now.getTimeInMillis();
-        last_collect_time = now.getTimeInMillis();
-
-        Toast toast = Toast.makeText(getApplicationContext(), "new sensor created", Toast.LENGTH_SHORT);
-        toast.show();
+        Toast.makeText(getApplicationContext(), "new sensor created", Toast.LENGTH_SHORT).show();
 
         Intent intent2 = new Intent(this, sensors.class);
         startActivity(intent2);
     }
-
-
-    public void goto_add_new_sensor(View view) {
-        // pour debugger
-        add_sensor();
-        return;
-        /////////////////////
-
-
-        //InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//
-//
-        //if (myNfcAdapter == null){
-        //    Toast.makeText(getBaseContext(), "NFC is not available on this device",Toast.LENGTH_SHORT).show();
-        //    return;
-        //}
-//
-        //if (!myNfcAdapter.isEnabled()) {
-        //    Toast.makeText(getBaseContext(), "You should turn NFC on before",Toast.LENGTH_SHORT).show();
-        //    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-        //        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-        //        startActivity(intent);
-        //    } else {
-        //        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-        //        startActivity(intent);
-        //    }
-        //    return;
-        //}
-//
-//
-//
-        //if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
-        //        mTechLists);
-        //ScrollNewSensor.setVisibility(View.INVISIBLE);
-        //progressBarWaitNewSensor.setVisibility(View.VISIBLE);
-        //tvWaitNewSensor.setVisibility(View.VISIBLE);
-    }
-
-
-
 
     public void get_location(View view) {
         JSONObject log_json = new JSONObject();
@@ -420,7 +353,6 @@ public class new_sensor extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     @Override
