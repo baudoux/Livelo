@@ -74,6 +74,7 @@ public class new_sensor extends AppCompatActivity {
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
 
+    /////////////////////////Sensors features//////////////////
     public static byte id[];
     public static boolean isNew = true;
     public static float lat = 0;
@@ -146,9 +147,9 @@ public class new_sensor extends AppCompatActivity {
 
         /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
 
-        //TODO regarder si le sensor existe déjà
-        file = new File(idString.toString() + ".json");
-        if(file.exists()){
+        //Checker if the sensor exists
+
+        if(fileExists()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("This sensor is already registered");
             builder.setMessage("Do you want to overwrite the previous data?");
@@ -254,30 +255,28 @@ public class new_sensor extends AppCompatActivity {
             fileout = openFileOutput(idString + ".json", MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
             outputWriter.write(new_sensor_json.toString());//Le fichier est-il stocké?
+
             outputWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
- //       try {
- //           FileInputStream fileIn = openFileInput(idString + ".json");
- //           InputStreamReader InputRead = new InputStreamReader(fileIn);
-//
- //           char[] inputBuffer = new char[100];
- //           String s = "";
- //           int charRead;
-//
- //           while ((charRead = InputRead.read(inputBuffer)) > 0) {
- //               // char to string conversion
- //               String readstring = String.copyValueOf(inputBuffer, 0, charRead);
- //               s += readstring;
- //               Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
- //           }
- //           InputRead.close();
- //       } catch (Exception e) {
- //           e.printStackTrace();
- //       }
-
+      try {
+          FileInputStream fileIn = openFileInput(idString + ".json");
+          InputStreamReader InputRead = new InputStreamReader(fileIn);
+          char[] inputBuffer = new char[100];
+          String s = "";
+          int charRead;
+          while ((charRead = InputRead.read(inputBuffer)) > 0) {
+              // char to string conversion
+              String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+              s += readstring;
+              Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+          }
+          InputRead.close();
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
         Toast.makeText(getApplicationContext(), "new sensor created", Toast.LENGTH_SHORT).show();
 
         Intent intent2 = new Intent(this, sensors.class);
@@ -361,4 +360,26 @@ public class new_sensor extends AppCompatActivity {
         Intent intent = new Intent(this, sensors.class);
         startActivity(intent);
     }
+
+    public boolean fileExists(){
+        try {
+            FileInputStream fileIn = openFileInput(idString + ".json");
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            int c = InputRead.read();
+
+            if(c == -1) {
+                InputRead.close();
+                return false;
+            }
+            else{
+                InputRead.close();
+                return true;
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
