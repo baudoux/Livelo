@@ -23,6 +23,17 @@
             android:orientation="vertical">
 
             <EditText
+                android:id="@+id/editSensorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:ems="10"
+                android:hint="Sensor's Name"
+                android:inputType="textPersonName"
+                android:textColor="#000000" />
+
+            <EditText
                 android:id="@+id/editName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -38,7 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="false"
-                android:layout_below="@+id/editName"
+                android:layout_below="@+id/editSensorName"
                 android:layout_centerHorizontal="true"
                 android:ems="10"
                 android:hint="Last name"
@@ -46,24 +57,24 @@
                 android:textColor="#000000" />
 
             <EditText
-                android:id="@+id/editLocation"
+                android:id="@+id/editLocality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/editCompany"
+                android:layout_below="@+id/editOrg"
                 android:layout_centerHorizontal="true"
                 android:ems="10"
-                android:hint="Location"
+                android:hint="Place"
                 android:inputType="textPersonName"
                 android:textColor="#000000" />
 
             <EditText
-                android:id="@+id/editCompany"
+                android:id="@+id/editOrg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editLastName"
                 android:layout_centerHorizontal="true"
                 android:ems="10"
-                android:hint="Company"
+                android:hint="Organisation"
                 android:inputType="textPersonName"
                 android:textColor="#000000" />
 
@@ -71,7 +82,7 @@
                 android:id="@+id/editType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/editLocation"
+                android:layout_below="@+id/editLocality"
                 android:layout_toLeftOf="@+id/_button"
                 android:layout_toStartOf="@+id/_button"
                 android:ems="10"
@@ -80,10 +91,38 @@
                 android:textColor="#000000" />
 
             <EditText
+                android:id="@+id/editDepth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView3"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Depth [meters]"
+                android:inputType="numberDecimal"
+                android:onClick="choose_period"
+                android:textColor="#000000" />
+
+            <EditText
+                android:id="@+id/editSensorDepth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView3"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Sensor depth [meters]"
+                android:inputType="numberDecimal"
+                android:onClick="choose_period"
+                android:textColor="#000000" />
+
+            <EditText
                 android:id="@+id/editComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/editLocation"
+                android:layout_below="@+id/editLocality"
                 android:layout_toLeftOf="@+id/_button"
                 android:layout_toStartOf="@+id/_button"
                 android:ems="10"
@@ -95,21 +134,21 @@
                 android:id="@+id/_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/editLocation"
-                android:layout_toEndOf="@+id/editLocation"
-                android:layout_toRightOf="@+id/editLocation"
+                android:layout_alignBottom="@+id/editLocality"
+                android:layout_toEndOf="@+id/editLocality"
+                android:layout_toRightOf="@+id/editLocality"
                 android:onClick="get_location"
                 android:text="GPS"
                 android:textColor="#000000" />
 
             <CheckBox
-                android:id="@+id/checkBoxOpenSource"
+                android:id="@+id/checkBoxOpenData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/editPeriod"
                 android:layout_centerHorizontal="true"
                 android:checked="true"
-                android:text="Open source" />
+                android:text="Open data" />
 
             <Button
                 android:id="@+id/button_add_sensor"

@@ -9,9 +9,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.NfcV;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,22 +24,13 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
-import static com.livelo.livelo.R.id.progressBarWaitNewSensor;
 import static java.util.Arrays.copyOf;
 
 public class new_sensor extends AppCompatActivity {
@@ -60,13 +49,16 @@ public class new_sensor extends AppCompatActivity {
 
     File file;
 
+    private EditText editSensorName;
     private EditText editName;
     private EditText editLastName;
-    private EditText editCompany;
-    private EditText editLocation;
+    private EditText editOrg;
+    private EditText editDepth;
+    private EditText editSensorDepth;
+    private EditText editLocality;
     private EditText editType;
     private EditText editComment;
-    private CheckBox checkBoxOpenSource;
+    private CheckBox checkBoxOpenData;
     private ProgressBar progressBarWaitNewSensor;
     private ScrollView ScrollNewSensor;
     private TextView tvWaitNewSensor;
@@ -76,14 +68,15 @@ public class new_sensor extends AppCompatActivity {
 
     /////////////////////////Sensors features//////////////////
     public static byte id[];
-    public static boolean isNew = true;
     public static float lat = 0;
     public static float lng = 0;
     public static float alt = 0;
     public static String locality = "";
     public static float battery = 0;
     public static float depth = 0;
-    public static String company = "";
+    public static float sensorDepth = 0;
+    public static String org = "";
+    public static String sensor_name = "";
     public static String first_name = "";
     public static String last_name = "";
     public static String type = "";
@@ -100,13 +93,16 @@ public class new_sensor extends AppCompatActivity {
 
         myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
+        editSensorName = (EditText) findViewById(R.id.editSensorName);
         editName = (EditText) findViewById(R.id.editName);
         editLastName = (EditText) findViewById(R.id.editLastName);
-        editCompany = (EditText) findViewById(R.id.editCompany);
-        editLocation = (EditText) findViewById(R.id.editLocation);
+        editOrg = (EditText) findViewById(R.id.editOrg);
+        editDepth = (EditText) findViewById(R.id.editDepth);
+        editSensorDepth = (EditText) findViewById(R.id.editSensorDepth);
+        editLocality = (EditText) findViewById(R.id.editLocality);
         editType = (EditText) findViewById(R.id.editType);
         editComment = (EditText) findViewById(R.id.editComment);
-        checkBoxOpenSource = (CheckBox) findViewById(R.id.checkBoxOpenSource);
+        checkBoxOpenData = (CheckBox) findViewById(R.id.checkBoxOpenData);
         progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
         ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);
         tvWaitNewSensor = (TextView) findViewById(R.id.tvWaitNewSensor);
@@ -128,8 +124,6 @@ public class new_sensor extends AppCompatActivity {
         };
         mTechLists = new String[][]{new String[]{NfcV.class.getName()},
                 new String[]{NdefFormatable.class.getName()}};
-
-        // TODO turn on the GPS here to be quicker to get the location at the end
 
         ScrollNewSensor.setVisibility(View.INVISIBLE);
         progressBarWaitNewSensor.setVisibility(View.VISIBLE);
@@ -161,8 +155,11 @@ public class new_sensor extends AppCompatActivity {
                     progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
                     tvWaitNewSensor.setVisibility(View.INVISIBLE);
                     ScrollNewSensor.setVisibility(View.VISIBLE);
+                    // start the location listener
+
                 }
             });
+
 
             builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
 
@@ -210,13 +207,18 @@ public class new_sensor extends AppCompatActivity {
 
         /////////////////////charge data inputs ///////////////////////////
 
+        sensor_name = editSensorName.getText().toString();
         first_name = editName.getText().toString();
         last_name = editLastName.getText().toString();
-        company = editCompany.getText().toString();
+        org = editOrg.getText().toString();
         //location = editLocation.getText().toString();
         type = editType.getText().toString();
         comment = editComment.getText().toString();
-        open_source = checkBoxOpenSource.isChecked();
+        open_source = checkBoxOpenData.isChecked();
+        String tmp = editDepth.getText().toString();
+        if (!tmp.isEmpty())  depth = Float.parseFloat(tmp);
+        tmp = editSensorDepth.getText().toString();
+        if (!tmp.isEmpty())  sensorDepth = Float.parseFloat(tmp);
 
         // TODO check for invalid inputs
         if (check_inputs()) {
@@ -225,11 +227,11 @@ public class new_sensor extends AppCompatActivity {
         }
 
         /////////////////////keep data in json object ///////////////////////////
+        // TODO wait for the GPS to get lat and lng
 
         JSONObject new_sensor_json = new JSONObject();
         try {
             new_sensor_json.put("id", idString);
-            new_sensor_json.put("new", true);
             new_sensor_json.put("lat", lat);
             new_sensor_json.put("lng", lng);
             new_sensor_json.put("alt", alt);
@@ -237,10 +239,12 @@ public class new_sensor extends AppCompatActivity {
             new_sensor_json.put("sample_period", 0);
             new_sensor_json.put("last_setup", System.currentTimeMillis()/1000);
             new_sensor_json.put("last_collect", 0);
-            //TODO entrer le niveau de la batterie
+            //TODO read the battery level
             new_sensor_json.put("battery", battery);
             new_sensor_json.put("depth", depth);
-            new_sensor_json.put("company", company);
+            new_sensor_json.put("sensor_depth", sensorDepth);
+            new_sensor_json.put("org", org);
+            new_sensor_json.put("sensor_name", sensor_name);
             new_sensor_json.put("first_name", first_name);
             new_sensor_json.put("last_name", last_name);
             new_sensor_json.put("type", type);
@@ -333,6 +337,8 @@ public class new_sensor extends AppCompatActivity {
 
     private boolean check_inputs() {
         // TODO complete
+        if (sensorDepth > depth) return true;
+        if (locality.isEmpty()) return true;
         return false;
     }
 
