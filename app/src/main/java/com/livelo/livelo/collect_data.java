@@ -61,6 +61,7 @@ public class collect_data extends AppCompatActivity {
     byte[] p; // sampling period
     int count = 0; //number of samples
     float periodInMin = 0; //period of sampling in minutes
+    int nbBlocksToRead = Sensor.NbOfSamplesGlobal/1024+1;
 
 
     JSONObject sensor;
@@ -154,7 +155,7 @@ public class collect_data extends AppCompatActivity {
                         }
 
                         // number of bolcks (2048B) to read - 1, such that it only reads the nb of new samples
-                        int nbBlocksToRead = 20; //Sensor.NbOfSamplesGlobal/1024+1;
+
                         if (k < nbBlocksToRead) {
                             refresh();
 
@@ -501,6 +502,8 @@ public class collect_data extends AppCompatActivity {
                     + "\nOpen source : " + sensor.getBoolean("open_source")
                     + "\nWorking since : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("set_up_time") * 1000))
                     + "\nLast collect time : " + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(sensor.getLong("last_collect_time") * 1000))
+                    + "\nNumber of Samples since last time: " + Sensor.NbOfSamplesGlobal
+                    + "\nSampling period (in minutes): " + periodInMin
                     + "\n");
             long now = System.currentTimeMillis() / 1000;
             sensor.put("last_collect_time", now);

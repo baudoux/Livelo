@@ -58,6 +58,8 @@ public class new_sensor extends AppCompatActivity {
 
     StringBuilder idString = new StringBuilder();
 
+    File file;
+
     private EditText editName;
     private EditText editLastName;
     private EditText editCompany;
@@ -158,7 +160,7 @@ public class new_sensor extends AppCompatActivity {
         /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
 
         //TODO regarder si le sensor existe déjà
-        File file = new File(idString.toString() + ".json");
+        file = new File(idString.toString() + ".json");
         if(file.exists()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("This sensor is already registered");
@@ -202,15 +204,14 @@ public class new_sensor extends AppCompatActivity {
             }
         } catch (IOException e) {
         }
-
-        for (int i = 0; i < id.length; i++) {
+        //for (int i = 2; i < id.length-2; i++) {//
+        for (int i = id.length-3; i > 1; i--) {//
             String hex = Integer.toHexString(0xFF & id[i]);
-            if (hex.length() == 1) {
+            if (hex.length() == 1) {//if string is empty
                 idString.append('0');
             }
             idString.append(hex);
         }
-
     }
 
     public void add_sensor() {
@@ -235,7 +236,7 @@ public class new_sensor extends AppCompatActivity {
 
         JSONObject new_sensor_json = new JSONObject();
         try {
-            new_sensor_json.put("id", id);
+            new_sensor_json.put("id", idString);
             new_sensor_json.put("new", true);
             new_sensor_json.put("lat", lat);
             new_sensor_json.put("lng", lng);
@@ -261,7 +262,7 @@ public class new_sensor extends AppCompatActivity {
         try {
             fileout = openFileOutput(idString + ".json", MODE_PRIVATE);
             outputWriter = new OutputStreamWriter(fileout);
-            outputWriter.write(new_sensor_json.toString());
+            outputWriter.write(new_sensor_json.toString());//Le fichier est-il stocké?
             outputWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
