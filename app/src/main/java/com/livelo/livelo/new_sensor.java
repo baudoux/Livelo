@@ -130,25 +130,12 @@ public class new_sensor extends AppCompatActivity {
 
         // TODO turn on the GPS here to be quicker to get the location at the end
 
-
-
-    }
-
-    public void goto_add_new_sensor(View view) {
-        // pour debugger
-       // add_sensor();
-       // return;
-        /////////////////////
-
-
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-        if (myNfcAdapter != null) myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters,
-                mTechLists);
         ScrollNewSensor.setVisibility(View.INVISIBLE);
         progressBarWaitNewSensor.setVisibility(View.VISIBLE);
         tvWaitNewSensor.setVisibility(View.VISIBLE);
+
+
+
     }
 
     public void onNewIntent(Intent intent) {
@@ -169,8 +156,10 @@ public class new_sensor extends AppCompatActivity {
             builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface dialog, int which) {
-                    add_sensor();
                     dialog.dismiss();
+                    progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
+                    tvWaitNewSensor.setVisibility(View.INVISIBLE);
+                    ScrollNewSensor.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -179,10 +168,10 @@ public class new_sensor extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Toast.makeText(getApplicationContext(), "cancelled", Toast.LENGTH_SHORT).show();
-                    ScrollNewSensor.setVisibility(View.VISIBLE);
-                    progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
-                    tvWaitNewSensor.setVisibility(View.INVISIBLE);
                     dialog.dismiss();
+                    // back to the sensors
+                    Intent intent = new Intent(new_sensor.this, sensors.class);
+                    startActivity(intent);
                 }
             });
 
@@ -190,7 +179,9 @@ public class new_sensor extends AppCompatActivity {
             alert.show();
         }
         else{
-            add_sensor();
+            progressBarWaitNewSensor.setVisibility(View.INVISIBLE);
+            tvWaitNewSensor.setVisibility(View.INVISIBLE);
+            ScrollNewSensor.setVisibility(View.VISIBLE);
         }
     }
 
@@ -214,7 +205,7 @@ public class new_sensor extends AppCompatActivity {
         }
     }
 
-    public void add_sensor() {
+    public void add_sensor(View view) {
 
         /////////////////////charge data inputs ///////////////////////////
 
@@ -354,6 +345,9 @@ public class new_sensor extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        if (myNfcAdapter != null)
+            myNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+
     }
 
     @Override
