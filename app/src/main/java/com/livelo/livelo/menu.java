@@ -101,8 +101,23 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_help(View view) {
-        Intent intent = new Intent(this, help.class);
-        startActivity(intent);
+        String s = "";
+        txtToString("log_files.json", s);
+
+        JSONArray log_files = new JSONArray();
+        try {
+            log_files = new JSONArray(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        //Toast.makeText(getBaseContext(), log_files[1], Toast.LENGTH_SHORT).show();
+
+        //Intent intent = new Intent(this, help.class);
+        //startActivity(intent);
     }
 
     public void goto_settings(View view) {
@@ -139,6 +154,7 @@ public class menu extends AppCompatActivity {
     public void send_data(View view) {
         new LongOperation().execute("");
 
+        //TODO check the internet connection
         Toast.makeText(getApplicationContext(), "sending data", Toast.LENGTH_SHORT).show();
 
         //new LongOperation().execute("");
@@ -235,51 +251,34 @@ public class menu extends AppCompatActivity {
 
             File file = new File("log_files.json");
             if(file.exists()) {
+                txtToString("log_files.json", s);
                 try {
-                    FileInputStream fileIn = openFileInput("log_files.json");
-                    InputStreamReader InputRead = new InputStreamReader(fileIn);
-                    char[] inputBuffer = new char[100];
-                    int charRead;
-                    while ((charRead = InputRead.read(inputBuffer)) > 0) {
-                        // char to string conversion
-                        String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                        s += readstring;
-                        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-                        log_files = new JSONArray(s);
-                    }
-                    InputRead.close();
+                    log_files = new JSONArray(s);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }// TODO else?
 
-            for (int n = 0; n < log_files.length(); n++) {
-                //String logFile = log_files.get(n).toString();
-                String logFile = "aésldkfjéldsf";
+            // for each log file, send it online
+            for (int n = log_files.length()-1; n>=0  ; n--) {
+                String logFile = "";
+                // get the name of the logfile
+                try {
+                    logFile = log_files.get(n).toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //String logFile = "aésldkfjéldsf";
                 URL url = null;
                 HttpURLConnection connection;
                 OutputStreamWriter request = null;
                 String response = null;
-                try {
-                    FileInputStream fileIn = openFileInput(logFile);
-                    InputStreamReader InputRead = new InputStreamReader(fileIn);
 
-                    char[] inputBuffer = new char[100];
-                    String s2 = "";
-                    int charRead;
+                // load the logfile into the parameters string
+                String parameters = "";
+                txtToString(logFile, parameters);
 
-                    while ((charRead = InputRead.read(inputBuffer)) > 0) {
-                        // char to string conversion
-                        String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                        s2 += readstring;
-                        Toast.makeText(getApplicationContext(), s2, Toast.LENGTH_LONG).show();
-                    }
-                    InputRead.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                String parameters = "hello";
                 try {
                     url = new URL(" http://posttestserver.com/post.php?dir=livelo");
                     connection = (HttpURLConnection) url.openConnection();
@@ -307,8 +306,12 @@ public class menu extends AppCompatActivity {
                     reader.close();
 
                 } catch (IOException e) {
-                    // Error
+                    // TODO: réécrire le logfiles, et message d'erreur
                 }
+                //TODO: suprimer le logfile
+
+                // remove the logfile from the logfiles list
+                log_files.remove(n);
             }
             return "executed";
         }
@@ -326,4 +329,24 @@ public class menu extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Void... values) {}
     }
+
+    void txtToString(String file, String output){
+        try {
+            FileInputStream fileIn = openFileInput(file);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            char[] inputBuffer = new char[100];
+            int charRead;
+            while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                // char to string conversion
+                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                output += readstring;
+                Toast.makeText(getApplicationContext(), output, Toast.LENGTH_LONG).show();
+                //log_files = new JSONArray(output);
+            }
+            InputRead.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

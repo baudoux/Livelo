@@ -116,9 +116,27 @@ public class settings extends AppCompatActivity {
             if (nfcv.isConnected()) {
 
 //////////////////////Reset the device /////////////////////
+
                 try{
                     //nfcv.connect();
-                    nfcv.transceive(resetCommand);
+                    byte command[] = new byte[]{//reset seulement du senseur/mémoire
+                            0x00,
+                            0x21,
+                            (byte) 0,
+                            0x01, //General control register
+                            0x00, //Firmware Status register
+                            0x40, //Sensor control register: temp reset
+                            0x03, //Frequency control register
+                            0x01, //Number of passes register
+                            0x01, //Averaging register
+                            0x00, //Interrupt control register
+                            //0x20 //Error control register: log into ram
+                            0x00
+                    };
+
+                    nfcv.transceive(command);
+
+                    // nfcv.transceive(resetCommand);
                     ///////Check if reset is done///////
                     byte[] resetIsDone;
                     resetIsDone = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
@@ -220,10 +238,10 @@ public class settings extends AppCompatActivity {
         String tmp = editPeriod.getText().toString();
         if (!tmp.isEmpty()) period = Float.parseFloat(tmp);
 
-        if(period < 0.05){
-            Toast.makeText(getBaseContext(), "invalid period, must be al least 0.05", Toast.LENGTH_SHORT).show();
-            return;
-        }
+       // if(period < 0.05){
+       //     Toast.makeText(getBaseContext(), "invalid period, must be al least 0.05", Toast.LENGTH_SHORT).show();
+       //     return;
+       // }
 
         if (myNfcAdapter == null){
             Toast.makeText(getBaseContext(), "NFC is not available on this device",Toast.LENGTH_SHORT).show();

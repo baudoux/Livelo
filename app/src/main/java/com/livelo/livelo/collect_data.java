@@ -114,6 +114,7 @@ public class collect_data extends AppCompatActivity {
         data.setVisibility(View.VISIBLE);
 
         data_array = new JSONArray();
+        dataForMail = "";
 
     }
 
@@ -218,12 +219,11 @@ public class collect_data extends AppCompatActivity {
 
                             // FIXME faire qqch pour si le file existe pas, ou le créer de toutes façons dans l'app
 
-                            // parse the json string
+                            // parse the json string of the log_files
                             String s = "";
                             JSONArray log_files = new JSONArray();
 
-                            File file = new File("log_files.json");
-                            if (file.exists()) {
+                            if (fileExists("log_files.json")) {
                                 try {
                                     FileInputStream fileIn = openFileInput("log_files.json");
                                     InputStreamReader InputRead = new InputStreamReader(fileIn);
@@ -242,7 +242,7 @@ public class collect_data extends AppCompatActivity {
                                 }
                             }
 
-                            /////////////////////keep the name of the file in files_names.txt ///////////////////////////
+                            /////////////////////keep the name of the file in log_files.json ///////////////////////////
                             try {
                                 log_files.put(fileName);
                                 fileout = openFileOutput("log_files.json", MODE_PRIVATE);
@@ -308,6 +308,7 @@ public class collect_data extends AppCompatActivity {
 
                 // TODO find sensor by id
                 File file = new File(id_string.toString() + ".json");
+
                 if (!file.exists()) {
                     tv.setText("Sensor detected: unknown sensor");
                 } else {
@@ -545,6 +546,28 @@ public class collect_data extends AppCompatActivity {
         android.support.v7.app.AlertDialog alert = builder.create();
         alert.show();
     }
+
+    public boolean fileExists(String s){
+        try {
+            FileInputStream fileIn = openFileInput(s);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            int c = InputRead.read();
+
+            if(c == -1) {
+                InputRead.close();
+                return false;
+            }
+            else{
+                InputRead.close();
+                return true;
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 }
 
