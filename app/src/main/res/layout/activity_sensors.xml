@@ -24,12 +24,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/tvSensrosList"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sensor 1\nSensor 2\nSensor 3\n.\n.\n."
-                android:textSize="24sp" />
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <ListView
+                        android:id="@+id/sensorsListView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </ScrollView>
         </LinearLayout>
     </ScrollView>
 

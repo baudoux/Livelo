@@ -221,10 +221,10 @@ public class new_sensor extends AppCompatActivity {
         if (!tmp.isEmpty())  sensorDepth = Float.parseFloat(tmp);
 
         // TODO check for invalid inputs
-        if (check_inputs()) {
+        /*if (check_inputs()) {
             Toast.makeText(getApplicationContext(), "invalid input", Toast.LENGTH_SHORT).show();
             return;
-        }
+        }*/
 
         /////////////////////keep data in json object ///////////////////////////
         // TODO wait for the GPS to get lat and lng

@@ -156,7 +156,7 @@ public class collect_data extends AppCompatActivity {
 
                         // number of bolcks (2048B) to read - 1, such that it only reads the nb of new samples
 
-                        if (k < nbBlocksToRead) {
+                        if (k < 1){//nbBlocksToRead) {
                             refresh();
 
                         } else {
@@ -264,6 +264,7 @@ public class collect_data extends AppCompatActivity {
                         }
                         progressBar.setProgress(k / nbBlocksToRead * 100);
                         tv_progress.setText("loading : " + String.valueOf(round((float) k / nbBlocksToRead * 100)) + "%");
+                        data.setText(dataForMail);//display on the phone
 
                     }
                 });
@@ -407,8 +408,9 @@ public class collect_data extends AppCompatActivity {
                     if (l % 2 == 1) {
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
-                        int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
+                        int currentData = ((((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff)) << 1);
                         data_array.put(currentData);
+                        dataForMail += currentData + "\n";
                         //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
                             outputWriter.write(String.format("%1$d", currentData) + "\n");
@@ -436,8 +438,10 @@ public class collect_data extends AppCompatActivity {
                     if (l % 2 == 1) {
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l] & 0xFF)).replace(' ', '0'));
                         Log.i(String.format("%1$d", blockCount), String.format("%8s", Integer.toBinaryString(buffer[l + 1] & 0xFF)).replace(' ', '0'));
-                        int currentData = ((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff);
+                        int currentData = ((((buffer[l] & 0xff) << 8) | (buffer[l + 1] & 0xff)) << 1);
                         data_array.put(currentData);
+                        dataForMail += currentData + "\n";
+
                         //-------------------------------------------------------------------------------------------------- lecture ici
                         try {
                             outputWriter.write(String.format("%1$d", currentData) + "\n");

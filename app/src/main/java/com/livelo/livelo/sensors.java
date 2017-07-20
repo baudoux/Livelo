@@ -6,6 +6,7 @@ import android.nfc.NfcAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import static com.livelo.livelo.R.layout.activity_sensors;
 
@@ -24,14 +26,6 @@ public class sensors extends AppCompatActivity {
     private NfcAdapter myNfcAdapter;
     private TextView tvSensrosList;
 
-    //ListView list;
-    private String[] prenoms = new String[]{
-            "Antoine", "Benoit", "Cyril", "David", "Eloise", "Florent",
-            "Gerard", "Hugo", "Ingrid", "Jonathan", "Kevin", "Logan",
-            "Mathieu", "Noemie", "Olivia", "Philippe", "Quentin", "Romain",
-            "Sophie", "Tristan", "Ulric", "Vincent", "Willy", "Xavier",
-            "Yann", "Zoé"
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,26 +33,59 @@ public class sensors extends AppCompatActivity {
         setContentView(activity_sensors);
         getSupportActionBar().setTitle("Sensors");
 
-        tvSensrosList = (TextView) findViewById(R.id.tvSensrosList);
+        final ListView sensorsList = (ListView) findViewById(R.id.sensorsListView);
 
-        try {
-            FileInputStream fileIn = openFileInput(Sensor.sensorsId);
-            InputStreamReader InputRead = new InputStreamReader(fileIn);
+        String[] prenoms = new String[]{
+                "Antoine", "Benoit", "Cyril", "David", "Eloise", "Florent"
+        };
 
-            char[] inputBuffer= new char[100];
-            String s = "";
-            int charRead;
-
-            while ((charRead=InputRead.read(inputBuffer))>0) {
-                // char to string conversion
-                String readstring=String.copyValueOf(inputBuffer,0,charRead);
-                s +=readstring;
-            }
-            InputRead.close();
-            tvSensrosList.setText(s);
-        } catch (Exception e) {
-            e.printStackTrace();
+        final ArrayList<String> list = new ArrayList<String>();
+        for (int i = 0; i < prenoms.length; ++i) {
+            list.add(prenoms[i]);
         }
+
+        final ArrayAdapter adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, list);
+        sensorsList.setAdapter(adapter);
+
+//      sensorsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+//         @Override
+//         public void onItemClick(AdapterView<?> parent, final View view,
+//                                 int position, long id) {
+//             final String item = (String) parent.getItemAtPosition(position);
+//             view.animate().setDuration(2000).alpha(0)
+//                     .withEndAction(new Runnable() {
+//                         @Override
+//                         public void run() {
+//                             list.remove(item);
+//                             adapter.notifyDataSetChanged();
+//                             view.setAlpha(1);
+//                         }
+//                     });
+//         }
+//     });
+
+        //tvSensrosList = (TextView) findViewById(R.id.tvSensrosList);
+
+ //      try {
+ //          FileInputStream fileIn = openFileInput(Sensor.sensorsId);
+ //          InputStreamReader InputRead = new InputStreamReader(fileIn);
+
+ //          char[] inputBuffer= new char[100];
+ //          String s = "";
+ //          int charRead;
+
+ //          while ((charRead=InputRead.read(inputBuffer))>0) {
+ //              // char to string conversion
+ //              String readstring=String.copyValueOf(inputBuffer,0,charRead);
+ //              s +=readstring;
+ //          }
+ //          InputRead.close();
+ //          tvSensrosList.setText(s);
+ //      } catch (Exception e) {
+ //          e.printStackTrace();
+ //      }
 
 
 

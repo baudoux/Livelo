@@ -48,8 +48,21 @@ public class settings extends AppCompatActivity {
     private EditText editPeriod;
     private RelativeLayout settingsLayout;
     private float period = 0; //en minutes
-    byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
-
+    //byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+    byte resetCommand[] = new byte[]{//reset seulement du senseur/mémoire
+            0x00,
+            0x21,
+            (byte) 0,
+            0x01, //General control register
+            0x00, //Firmware Status register
+            0x40, //Sensor control register: temp reset
+            0x03, //Frequency control register
+            0x01, //Number of passes register
+            0x01, //Averaging register
+            0x00, //Interrupt control register
+            //0x20 //Error control register: log into ram
+            0x00
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
