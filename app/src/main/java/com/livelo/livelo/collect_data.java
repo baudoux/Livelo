@@ -54,7 +54,7 @@ public class collect_data extends AppCompatActivity {
     private ProgressBar progressBar4;
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
-    private StringBuilder id_string;
+    private StringBuilder idString;
     public static String dataForMail;
 
     byte[] c; // count, number of samples
@@ -62,6 +62,9 @@ public class collect_data extends AppCompatActivity {
     int count = 0; //number of samples
     float periodInMin = 0; //period of sampling in minutes
     int nbBlocksToRead = Sensor.NbOfSamplesGlobal/1024+1;
+
+    Tag detectedTag;
+    NfcV nfcv;
 
 
     JSONObject sensor;
@@ -71,8 +74,6 @@ public class collect_data extends AppCompatActivity {
     private int k = 0;
     byte readCommand[] = new byte[]{0x00, 0x21, (byte) 0, 0x01, 0x00, 0x20, 0x03, 0x01, 0x01, 0x00, 0x00};
     byte[] buffer;// buffer containing the data
-    Tag detectedTag;
-    NfcV nfcv;
     int blockCount = 1;
     String fileName;
 
@@ -163,31 +164,46 @@ public class collect_data extends AppCompatActivity {
                         } else {
                             readOneBlock();
 
+                            long start = 0;
+                            JSONObject sensor_file = new JSONObject();
+                            if(fileExists(idString + ".json")) {
+                                String s = txtToString(idString + ".json");
+                                try {
+                                    sensor_file = new JSONObject(s);
+                                    start = sensor_file.getLong("start");
 
-                            long now = System.currentTimeMillis() / 1000;
-                            String now_string = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(now * 1000));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                            }// TODO else?
+
 
                             // create the log object////////////////////////////////////////////////
                             JSONObject log_json = new JSONObject();
                             try {
-                                log_json.put("id", id_string);
+                                log_json.put("id", idString);
                                 // TODO ajouter la date du début si on peut la stocker dans le sensor sinon on la met en ligne quand on start le sensor
-                                log_json.put("start", now);
-                                log_json.put("stop", now);
+                                log_json.put("cmd_key", "raw_pressure");
+                                // TODO lecture de calibration stockée dans le sensor
+                                log_json.put("cal_start", 9999);
+                                // TODO lecture de calibration au moment de la collecte
+                                log_json.put("cal_stop", 9999);
+                                log_json.put("start", start);
+                                log_json.put("stop", System.currentTimeMillis()/1000);
                                 // TODO ajouter le nomber de sampling ici
                                 log_json.put("num", count);
                                 log_json.put("period", periodInMin);
-                                // TODO lecture de calibration stockée dans le sensor
-                                log_json.put("cal_start", 1234);
-                                // TODO lecture de calibration au moment de la collecte
-                                log_json.put("cal_stop", 2345);
                                 log_json.put("data", data_array);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
                             // store it in a file //////////////////////////////////////////////////
-                            fileName = now_string + "_" + id_string.toString() + ".json";
+                            Calendar now = Calendar.getInstance();
+                            String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
+
+                            fileName = now_string + "_" + idString.toString() + ".json";
                             try {
                                 fileout = openFileOutput(fileName, MODE_PRIVATE);
                                 outputWriter = new OutputStreamWriter(fileout);
@@ -292,9 +308,9 @@ public class collect_data extends AppCompatActivity {
                 // get device id
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
 
-                id_string = new StringBuilder();
+                idString = new StringBuilder();
                 for (byte b : id) {
-                    id_string.append(String.format("%02X", b));
+                    idString.append(String.format("%02X", b));
                 }
 
                 ///////////////////////////how many samples since last time ?
@@ -307,7 +323,7 @@ public class collect_data extends AppCompatActivity {
 
 
                 // TODO find sensor by id
-                File file = new File(id_string.toString() + ".json");
+                File file = new File(idString.toString() + ".json");
 
                 if (!file.exists()) {
                     tv.setText("Sensor detected: unknown sensor");
@@ -315,7 +331,7 @@ public class collect_data extends AppCompatActivity {
                     // read the json
                     String s = "";
                     try {
-                        FileInputStream fileIn = openFileInput(id_string.toString() + ".json");
+                        FileInputStream fileIn = openFileInput(idString.toString() + ".json");
                         InputStreamReader InputRead = new InputStreamReader(fileIn);
                         char[] inputBuffer = new char[100];
                         int charRead;
@@ -336,16 +352,8 @@ public class collect_data extends AppCompatActivity {
 
                 }
                 // get now for file name
-                Calendar now = Calendar.getInstance();
-                String now_string = new SimpleDateFormat("yyyy-MM-dd").format(now.getTimeInMillis());
-
-                fileName = now_string + "_" + id_string.toString() + ".txt";
-
                 byte index[];
                 index = nfcv.transceive(new byte[]{0x00, (byte) -64, 0x07, 0x41, 0x06});
-
-                fileout = openFileOutput(fileName, MODE_PRIVATE);
-                outputWriter = new OutputStreamWriter(fileout);
 
                 // ask for the first block
                 nfcv.transceive(readCommand);
@@ -567,6 +575,26 @@ public class collect_data extends AppCompatActivity {
             return false;
         }
     }
+
+    String txtToString(String file){
+        String output = "";
+        try {
+            FileInputStream fileIn = openFileInput(file);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            char[] inputBuffer = new char[100];
+            int charRead;
+            while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                // char to string conversion
+                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                output += readstring;
+            }
+            InputRead.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
+
 
 
 }

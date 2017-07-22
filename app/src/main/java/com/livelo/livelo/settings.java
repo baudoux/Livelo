@@ -28,7 +28,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,21 +53,12 @@ public class settings extends AppCompatActivity {
     private EditText editPeriod;
     private RelativeLayout settingsLayout;
     private float period = 0; //en minutes
+    private String idString = "";
     //byte resetCommand[] = new byte[]{ 0x00, 0x21, (byte) 0, -128, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
-    byte resetCommand[] = new byte[]{//reset seulement du senseur/mémoire
-            0x00,
-            0x21,
-            (byte) 0,
-            0x01, //General control register
-            0x00, //Firmware Status register
-            0x40, //Sensor control register: temp reset
-            0x03, //Frequency control register
-            0x01, //Number of passes register
-            0x01, //Averaging register
-            0x00, //Interrupt control register
-            //0x20 //Error control register: log into ram
-            0x00
-    };
+
+    Tag detectedTag;
+    NfcV nfcv;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,10 +103,8 @@ public class settings extends AppCompatActivity {
     }
 
     public void onNewIntent(Intent intent) {
-        // TODO connexion nfc ici et mettre les paremetres dans le sensor
-
-        Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        NfcV nfcv = NfcV.get(detectedTag);
+        detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        nfcv = NfcV.get(detectedTag);
         try {
             nfcv.connect();
             if (nfcv.isConnected()) {
@@ -118,7 +112,9 @@ public class settings extends AppCompatActivity {
 //////////////////////Reset the device /////////////////////
 
                 try{
-                    //nfcv.connect();
+
+                    idString = getId();
+
                     byte command[] = new byte[]{//reset seulement du senseur/mémoire
                             0x00,
                             0x21,
@@ -147,7 +143,7 @@ public class settings extends AppCompatActivity {
                     }
                     //nfcv.close();
                 } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Error",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Error1",Toast.LENGTH_SHORT).show();
                 }
 
                 int periodInMs = (int)(period * 60 * 1000); //period in ms
@@ -192,6 +188,8 @@ public class settings extends AppCompatActivity {
 
                 nfcv.transceive(command);
 
+                // open the sensor file
+
                 //Check if sampling is launched
                 byte samplingIsLaunched[] = nfcv.transceive(new byte[]{0x00, 0x20, (byte) 0});
                 if((samplingIsLaunched[3] & (byte)16)== (1 << 4)){
@@ -207,6 +205,21 @@ public class settings extends AppCompatActivity {
         } catch (IOException e) {
             //myText.append("Error");
         }
+
+        JSONObject sensor_file = new JSONObject();
+        if(fileExists(idString + ".json")) {
+            String s = txtToString(idString + ".json");
+            try {
+                sensor_file = new JSONObject(s);
+                sensor_file.put("start", System.currentTimeMillis()/1000);
+                sensor_file.put("period", period);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }// TODO else?
+
 
 
         // back to the menu activity
@@ -292,4 +305,67 @@ public class settings extends AppCompatActivity {
         Intent intent = new Intent(this, menu.class);
         startActivity(intent);
     }
+
+    public String getId(){
+        StringBuilder idStr = new StringBuilder();
+        byte id[] = {0};
+
+        try {
+            if (nfcv.isConnected()) {
+                id = nfcv.transceive(new byte[]{0x00, 0x2B});
+                //TODO measure the battery level here
+            }
+        } catch (IOException e) {
+        }
+        //for (int i = 2; i < id.length-2; i++) {//
+        for (int i = id.length-3; i > 1; i--) {//
+            String hex = Integer.toHexString(0xFF & id[i]);
+            if (hex.length() == 1) {//if string is empty
+                idStr.append('0');
+            }
+            idStr.append(hex);
+        }
+        return idStr.toString();
+    }
+
+    public boolean fileExists(String s){
+        try {
+            FileInputStream fileIn = openFileInput(s);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            int c = InputRead.read();
+
+            if(c == -1) {
+                InputRead.close();
+                return false;
+            }
+            else{
+                InputRead.close();
+                return true;
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    String txtToString(String file){
+        String output = "";
+        try {
+            FileInputStream fileIn = openFileInput(file);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            char[] inputBuffer = new char[100];
+            int charRead;
+            while ((charRead = InputRead.read(inputBuffer)) > 0) {
+                // char to string conversion
+                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                output += readstring;
+            }
+            InputRead.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
+
 }

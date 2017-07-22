@@ -67,7 +67,6 @@ public class new_sensor extends AppCompatActivity {
     private OutputStreamWriter outputWriter;
 
     /////////////////////////Sensors features//////////////////
-    public static byte id[];
     public static float lat = 0;
     public static float lng = 0;
     public static float alt = 0;
@@ -183,7 +182,10 @@ public class new_sensor extends AppCompatActivity {
         }
     }
 
-    public void getId(){
+    public String getId(){
+        StringBuilder idStr = new StringBuilder();
+        byte id[] = {0};
+
         try {
             nfcv.connect();
             if (nfcv.isConnected()) {
@@ -197,10 +199,11 @@ public class new_sensor extends AppCompatActivity {
         for (int i = id.length-3; i > 1; i--) {//
             String hex = Integer.toHexString(0xFF & id[i]);
             if (hex.length() == 1) {//if string is empty
-                idString.append('0');
+                idStr.append('0');
             }
-            idString.append(hex);
+            idStr.append(hex);
         }
+        return idStr.toString();
     }
 
     public void add_sensor(View view) {
@@ -236,7 +239,7 @@ public class new_sensor extends AppCompatActivity {
             new_sensor_json.put("lng", lng);
             new_sensor_json.put("alt", alt);
             new_sensor_json.put("locality", locality);
-            new_sensor_json.put("sample_period", 0);
+            new_sensor_json.put("period", 0);
             new_sensor_json.put("last_setup", System.currentTimeMillis()/1000);
             new_sensor_json.put("last_collect", 0);
             //TODO read the battery level

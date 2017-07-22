@@ -2,6 +2,7 @@ package com.livelo.livelo;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,16 +102,31 @@ public class menu extends AppCompatActivity {
     }
 
     public void goto_help(View view) {
-        String s = "";
-        txtToString("log_files.json", s);
+        String s = txtToString("log_files.json");//a corriger
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
 
         JSONArray log_files = new JSONArray();
+
+        if(fileExists("log_files.json")) {
+
+            try {
+                log_files = new JSONArray(s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        String logFile = "";
+        // get the name of the logfile
         try {
-            log_files = new JSONArray(s);
+            logFile = log_files.get(0).toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        txtToString(logFile);
 
+
+        //String logFile = "aésldkfjéldsf";
 
 
 
@@ -246,12 +262,23 @@ public class menu extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             // ouvre la liste des logfiles pour les envoyer
-            String s = "";
-            JSONArray log_files = new JSONArray();
 
-            File file = new File("log_files.json");
-            if(file.exists()) {
-                txtToString("log_files.json", s);
+            //////////////////////////////////////////////
+            String s = txtToString("log_files.json");//a corriger
+
+            JSONArray log_files = new JSONArray();
+            try {
+                log_files = new JSONArray(s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            /////////////////////////////////////////////
+            //String s = "";
+            //JSONArray log_files = new JSONArray();
+
+            if(fileExists("log_files.json")) {
+                s = txtToString("log_files.json");//a corriger
                 try {
                     log_files = new JSONArray(s);
                 } catch (Exception e) {
@@ -261,7 +288,9 @@ public class menu extends AppCompatActivity {
             }// TODO else?
 
             // for each log file, send it online
-            for (int n = log_files.length()-1; n>=0  ; n--) {
+            int nbFilesToSend = log_files.length();
+            int n;
+            for ( n = nbFilesToSend-1; n>=0  ; n--) {
                 String logFile = "";
                 // get the name of the logfile
                 try {
@@ -277,10 +306,12 @@ public class menu extends AppCompatActivity {
 
                 // load the logfile into the parameters string
                 String parameters = "";
-                txtToString(logFile, parameters);
+                parameters = txtToString(logFile);
 
                 try {
                     url = new URL(" http://posttestserver.com/post.php?dir=livelo");
+                    //url = new URL("http://beta.thinkee.ch:10102/livelo");
+                    http://beta.thinkee.ch:10102/livelo
                     connection = (HttpURLConnection) url.openConnection();
                     //connection.setDoOutput(true); // on sait pas a quoi ça sert , false default
                     connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -305,15 +336,32 @@ public class menu extends AppCompatActivity {
                     isr.close();
                     reader.close();
 
+                    File file = new File(logFile);
+                    file.delete();
+
                 } catch (IOException e) {
-                    // TODO: réécrire le logfiles, et message d'erreur
+                    try {
+                        FileOutputStream fileout = openFileOutput("log_files.json", MODE_PRIVATE);
+                        OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+                        outputWriter.write(log_files.toString());
+                        outputWriter.close();
+                    } catch (Exception f) {
+                        f.printStackTrace();
+                    }
                 }
-                //TODO: suprimer le logfile
+                try {
+                    FileOutputStream fileout = openFileOutput("log_files.json", MODE_PRIVATE);
+                    OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+                    outputWriter.write(log_files.toString());
+                    outputWriter.close();
+                } catch (Exception f) {
+                    f.printStackTrace();
+                }
 
                 // remove the logfile from the logfiles list
                 log_files.remove(n);
             }
-            return "executed";
+            return String.valueOf(nbFilesToSend - n - 1) + " over " + String.valueOf(nbFilesToSend) + " files sent";
         }
 
         @Override
@@ -330,7 +378,8 @@ public class menu extends AppCompatActivity {
         protected void onProgressUpdate(Void... values) {}
     }
 
-    void txtToString(String file, String output){
+    String txtToString(String file){
+        String output = "";
         try {
             FileInputStream fileIn = openFileInput(file);
             InputStreamReader InputRead = new InputStreamReader(fileIn);
@@ -340,13 +389,34 @@ public class menu extends AppCompatActivity {
                 // char to string conversion
                 String readstring = String.copyValueOf(inputBuffer, 0, charRead);
                 output += readstring;
-                Toast.makeText(getApplicationContext(), output, Toast.LENGTH_LONG).show();
-                //log_files = new JSONArray(output);
             }
             InputRead.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return output;
     }
+
+    public boolean fileExists(String name){
+        try {
+            FileInputStream fileIn = openFileInput(name);
+            InputStreamReader InputRead = new InputStreamReader(fileIn);
+            int c = InputRead.read();
+
+            if(c == -1) {
+                InputRead.close();
+                return false;
+            }
+            else{
+                InputRead.close();
+                return true;
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 }
