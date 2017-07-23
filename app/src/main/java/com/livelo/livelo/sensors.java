@@ -137,5 +137,10 @@ public class sensors extends AppCompatActivity {
         Intent intent = new Intent(this, menu.class);
         startActivity(intent);
     }
+
+    public void goto_map(View view){
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
 }
 

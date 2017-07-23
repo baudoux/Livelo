@@ -366,7 +366,7 @@ public class new_sensor extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, sensors.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 

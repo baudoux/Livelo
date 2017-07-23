@@ -62,13 +62,14 @@
         android:layout_toStartOf="@+id/button_search_location" />
 
     <ImageButton
+        android:id="@+id/button_search_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button_search_location"
-        android:src="@android:drawable/ic_menu_mylocation"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:onClick="goto_map"
+        android:src="@android:drawable/ic_menu_mylocation" />
 
     <!--ListView
         android:id="@+id/list"

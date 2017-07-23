@@ -393,7 +393,7 @@ public class collect_data extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, menu.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 

@@ -147,6 +147,17 @@ public class menu extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void goto_new_sensor(View view) {
+        myNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (myNfcAdapter == null) {
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(this, new_sensor.class);
+        startActivity(intent);
+    }
+
     public void goto_reset(View view) {
         if (myNfcAdapter == null) {
             Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
