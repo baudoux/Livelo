@@ -223,7 +223,7 @@ public class settings extends AppCompatActivity {
 
 
         // back to the menu activity
-        Intent intent2 = new Intent(this, menu.class);
+        Intent intent2 = new Intent(this, MainActivity.class);
         startActivity(intent2);
     }
 

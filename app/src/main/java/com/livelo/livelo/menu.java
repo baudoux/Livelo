@@ -75,7 +75,6 @@ public class menu extends AppCompatActivity {
         refresh_time();
     }
 
-
     public void goto_sensor(View view) {
         Intent intent = new Intent(this, sensors.class);
         startActivity(intent);

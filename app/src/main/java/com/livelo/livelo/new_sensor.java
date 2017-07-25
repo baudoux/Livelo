@@ -45,7 +45,7 @@ public class new_sensor extends AppCompatActivity {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
 
-    StringBuilder idString = new StringBuilder();
+    String idString = "";
 
     File file;
 
@@ -136,13 +136,11 @@ public class new_sensor extends AppCompatActivity {
         Tag detectedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         nfcv = NfcV.get(detectedTag);
 
-        getId();
-
-        /////////////////////keep the sensor's id in sensors/id.txt ///////////////////////////
+        idString = getId();
 
         //Checker if the sensor exists
 
-        if(fileExists()){
+        if(fileExists(idString + ".json")){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("This sensor is already registered");
             builder.setMessage("Do you want to overwrite the previous data?");
@@ -370,9 +368,9 @@ public class new_sensor extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public boolean fileExists(){
+    public boolean fileExists(String name){
         try {
-            FileInputStream fileIn = openFileInput(idString + ".json");
+            FileInputStream fileIn = openFileInput(name);
             InputStreamReader InputRead = new InputStreamReader(fileIn);
             int c = InputRead.read();
 
