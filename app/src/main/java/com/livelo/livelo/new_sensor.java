@@ -2,9 +2,13 @@ package com.livelo.livelo;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NdefFormatable;
@@ -12,6 +16,7 @@ import android.nfc.tech.NfcV;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -40,6 +45,8 @@ public class new_sensor extends AppCompatActivity {
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     // private com.google.android.gms.common.api.GoogleApiClient client;
+
+
     private NfcAdapter myNfcAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
@@ -58,6 +65,7 @@ public class new_sensor extends AppCompatActivity {
     private EditText editLocality;
     private EditText editType;
     private EditText editComment;
+    private EditText tv_loc;
     private CheckBox checkBoxOpenData;
     private ProgressBar progressBarWaitNewSensor;
     private ScrollView ScrollNewSensor;
@@ -67,8 +75,8 @@ public class new_sensor extends AppCompatActivity {
     private OutputStreamWriter outputWriter;
 
     /////////////////////////Sensors features//////////////////
-    public static float lat = 0;
-    public static float lng = 0;
+    public static String lat = "";
+    public static String lng = "";
     public static float alt = 0;
     public static String locality = "";
     public static float battery = 0;
@@ -101,6 +109,9 @@ public class new_sensor extends AppCompatActivity {
         editLocality = (EditText) findViewById(R.id.editLocality);
         editType = (EditText) findViewById(R.id.editType);
         editComment = (EditText) findViewById(R.id.editComment);
+
+        tv_loc = (EditText) findViewById(R.id.tv_loc);
+
         checkBoxOpenData = (CheckBox) findViewById(R.id.checkBoxOpenData);
         progressBarWaitNewSensor = (ProgressBar) findViewById(R.id.progressBarWaitNewSensor);
         ScrollNewSensor = (ScrollView) findViewById(R.id.ScrollNewSensor);

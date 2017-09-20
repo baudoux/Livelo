@@ -54,7 +54,7 @@ public class collect_data extends AppCompatActivity {
     private ProgressBar progressBar4;
     private FileOutputStream fileout;
     private OutputStreamWriter outputWriter;
-    private StringBuilder idString;
+    private String idString = "";
     public static String dataForMail;
 
     byte[] c; // count, number of samples
@@ -306,12 +306,7 @@ public class collect_data extends AppCompatActivity {
             nfcv.connect();
             if (nfcv.isConnected()) {
                 // get device id
-                id = nfcv.transceive(new byte[]{0x00, 0x2B});
-
-                idString = new StringBuilder();
-                for (byte b : id) {
-                    idString.append(String.format("%02X", b));
-                }
+                idString = getId();
 
                 ///////////////////////////how many samples since last time ?
                 readNbofSamples();
@@ -594,6 +589,29 @@ public class collect_data extends AppCompatActivity {
         }
         return output;
     }
+
+    public String getId(){
+        StringBuilder idStr = new StringBuilder();
+        byte id[] = {0};
+
+        try {
+            if (nfcv.isConnected()) {
+                id = nfcv.transceive(new byte[]{0x00, 0x2B});
+                //TODO measure the battery level here
+            }
+        } catch (IOException e) {
+        }
+        //for (int i = 2; i < id.length-2; i++) {//
+        for (int i = id.length-3; i > 1; i--) {//
+            String hex = Integer.toHexString(0xFF & id[i]);
+            if (hex.length() == 1) {//if string is empty
+                idStr.append('0');
+            }
+            idStr.append(hex);
+        }
+        return idStr.toString();
+    }
+
 
 
 

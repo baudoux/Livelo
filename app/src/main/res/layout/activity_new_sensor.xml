@@ -141,6 +141,18 @@
                 android:text="GPS"
                 android:textColor="#000000" />
 
+            <EditText
+                android:id="@+id/tv_loc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editLocality"
+                android:layout_toLeftOf="@+id/_button"
+                android:layout_toStartOf="@+id/_button"
+                android:ems="10"
+                android:hint="Location"
+                android:inputType="textPersonName"
+                android:textColor="#000000" />
+
             <CheckBox
                 android:id="@+id/checkBoxOpenData"
                 android:layout_width="match_parent"

@@ -9,8 +9,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -33,7 +32,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,16 +43,16 @@
         </activity>
         <activity
             android:name=".menu"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".sensors"
-            android:parentActivityName=".menu"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.livelo.livelo.menu" />
+                android:value="com.livelo.livelo.MainActivity" />
         </activity>
         <activity
             android:name=".new_sensor"
@@ -79,27 +79,27 @@
                 android:resource="@xml/nfc_tech_list" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.livelo.livelo.menu" />
+                android:value="com.livelo.livelo.MainActivity" />
         </activity>
         <activity
             android:name=".settings"
-            android:parentActivityName=".menu"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.livelo.livelo.menu" />
+                android:value="com.livelo.livelo.MainActivity" />
         </activity>
         <activity
             android:name=".reset"
-            android:parentActivityName=".menu"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".help"
-            android:parentActivityName=".menu"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.livelo.livelo.menu" />
+                android:value="com.livelo.livelo.MainActivity" />
         </activity>
         <!--
      ATTENTION: This was auto-generated to add Google Play services to your project for
@@ -119,8 +119,21 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
-        <activity android:name=".info"></activity>
+            android:label="@string/title_activity_maps"
+            android:parentActivityName=".sensors"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.livelo.livelo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".info"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.livelo.livelo.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

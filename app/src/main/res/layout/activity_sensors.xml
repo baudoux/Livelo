@@ -12,17 +12,13 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/button_search_id"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentTop="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -31,12 +27,12 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <ListView
                         android:id="@+id/sensorsListView"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent" />
                 </LinearLayout>
             </ScrollView>
         </LinearLayout>
@@ -44,32 +40,31 @@
 
     <Button
         android:id="@+id/new_sensor_button"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:onClick="goto_new_sensor"
         android:text="New"
-        android:textColor="#000000" />
+        android:textColor="#000000"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/button_search_location" />
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button_search_id"
         android:src="@android:drawable/ic_menu_search"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/button_search_location"
-        android:layout_toStartOf="@+id/button_search_location" />
+        android:layout_alignTop="@+id/new_sensor_button"
+        android:layout_alignParentEnd="true" />
 
     <ImageButton
         android:id="@+id/button_search_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:onClick="goto_map"
-        android:src="@android:drawable/ic_menu_mylocation" />
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:layout_alignTop="@+id/button_search_id"
+        android:layout_toStartOf="@+id/button_search_id" />
 
     <!--ListView
         android:id="@+id/list"

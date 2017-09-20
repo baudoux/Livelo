@@ -125,6 +125,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void goto_sensors(View view) {
+
+        //Intent intent = new Intent(this, sensors.class);
+        //startActivity(intent);
+    }
+
     public void goto_help(View view) {
         String s = txtToString("log_files.json");//a corriger
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
@@ -166,7 +172,10 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            finish();
+            System.exit(0);
+
+            //super.onBackPressed();
         }
     }
 

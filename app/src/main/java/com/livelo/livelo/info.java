@@ -77,7 +77,7 @@ public class info extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle("info");
+        getSupportActionBar().setTitle("Info");
         setContentView(R.layout.activity_info);
 
         data = (TextView) findViewById(R.id.data);
@@ -237,28 +237,29 @@ public class info extends AppCompatActivity {
     }
 
     public String getId(){
-    StringBuilder idStr = new StringBuilder();
-    byte id[] = {0};
+        StringBuilder idStr = new StringBuilder();
+        byte id[] = {0};
 
-    try {
-        nfcv.connect();
-        if (nfcv.isConnected()) {
-            id = nfcv.transceive(new byte[]{0x00, 0x2B});
-            //TODO measure the battery level here
-            nfcv.close();
+        try {
+            nfcv.connect();
+            if (nfcv.isConnected()) {
+                id = nfcv.transceive(new byte[]{0x00, 0x2B});
+                //TODO measure the battery level here
+                nfcv.close();
+            }
+        } catch (IOException e) {
         }
-    } catch (IOException e) {
-    }
-    //for (int i = 2; i < id.length-2; i++) {//
-    for (int i = id.length-3; i > 1; i--) {//
-        String hex = Integer.toHexString(0xFF & id[i]);
-        if (hex.length() == 1) {//if string is empty
-            idStr.append('0');
+        //for (int i = 2; i < id.length-2; i++) {//
+        for (int i = id.length-3; i > 1; i--) {//
+            String hex = Integer.toHexString(0xFF & id[i]);
+            if (hex.length() == 1) {//if string is empty
+                idStr.append('0');
+            }
+            idStr.append(hex);
         }
-        idStr.append(hex);
+        return idStr.toString();
     }
-    return idStr.toString();
-}
+
 }
 
 

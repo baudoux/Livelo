@@ -26,11 +26,6 @@ tools:context="com.livelo.livelo.info">
             android:layout_height="match_parent"
             android:text="TextView"/>
 
-        <Button
-            android:id="@+id/buttonEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
     </LinearLayout>
 
 
