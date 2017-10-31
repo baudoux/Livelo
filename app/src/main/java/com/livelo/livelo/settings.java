@@ -14,6 +14,7 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -116,7 +117,7 @@ public class settings extends AppCompatActivity {
                     idString = getId();
 
                     byte command[] = new byte[]{//reset seulement du senseur/mémoire
-                            0x00,
+                            0x40,
                             0x21,
                             (byte) 0,
                             0x01, //General control register
@@ -143,6 +144,7 @@ public class settings extends AppCompatActivity {
                     }
                     //nfcv.close();
                 } catch (IOException e) {
+                    Log.d("e", e.toString());
                     Toast.makeText(getBaseContext(), "Error1",Toast.LENGTH_SHORT).show();
                 }
 

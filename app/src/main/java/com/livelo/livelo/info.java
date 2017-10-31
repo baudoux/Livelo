@@ -244,6 +244,7 @@ public class info extends AppCompatActivity {
             nfcv.connect();
             if (nfcv.isConnected()) {
                 id = nfcv.transceive(new byte[]{0x00, 0x2B});
+
                 //TODO measure the battery level here
                 nfcv.close();
             }

@@ -99,7 +99,26 @@ public class MainActivity extends AppCompatActivity
             }
             return;
         }
-        Intent intent = new Intent(this, info.class);
+        Intent intent = new Intent(this, reset.class);
+        startActivity(intent);
+    }
+
+    public void goto_sensor_list(View view) {
+        if (myNfcAdapter == null) {
+            Toast.makeText(getBaseContext(), "NFC is not available for the device", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (!myNfcAdapter.isEnabled()) {
+            Toast.makeText(getBaseContext(), "You should turn NFC on before", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                startActivity(intent);
+            }
+            return;
+        }
+        Intent intent = new Intent(this, reset.class);
         startActivity(intent);
     }
 
